@@ -101,80 +101,6 @@ const TabNavigator = () => {
   );
 };
 
-const AuthNavigator = () => {
-  const { theme } = useTheme();
-  
-  return (
-    <NavigationContainer>
-      <Stack.Navigator
-        screenOptions={{
-          headerStyle: {
-            backgroundColor: theme.surface,
-          },
-          headerTintColor: theme.text,
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          },
-        }}
-      >
-        <Stack.Screen 
-          name="Login" 
-          component={LoginScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen 
-          name="Signup" 
-          component={SignupScreen}
-          options={{ 
-            title: 'Create Account',
-            headerRight: () => <ThemeToggleButton />,
-          }}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
-};
-
-const MainNavigator = () => {
-  const { theme } = useTheme();
-  
-  return (
-    <NavigationContainer>
-      <Stack.Navigator
-        screenOptions={{
-          headerStyle: {
-            backgroundColor: theme.surface,
-          },
-          headerTintColor: theme.text,
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          },
-        }}
-      >
-        <Stack.Screen 
-          name="MainTabs" 
-          component={TabNavigator}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen 
-          name="EventDetails" 
-          component={EventDetailsScreen}
-          options={{
-            title: 'Event Details',
-          }}
-        />
-        <Stack.Screen 
-          name="Feedback" 
-          component={FeedbackScreen}
-          options={{
-            title: 'Event Feedback',
-          }}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
-};
-
 const AppContent = () => {
   const { isAuthenticated, loading } = useAuth();
   const { theme } = useTheme();
@@ -199,7 +125,61 @@ const AppContent = () => {
     );
   }
 
-  return isAuthenticated ? <MainNavigator /> : <AuthNavigator />;
+  return (
+    <NavigationContainer>
+      <Stack.Navigator
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: theme.surface,
+          },
+          headerTintColor: theme.text,
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
+      >
+        {isAuthenticated ? (
+          <>
+            <Stack.Screen
+              name="MainTabs"
+              component={TabNavigator}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="EventDetails"
+              component={EventDetailsScreen}
+              options={{
+                title: 'Event Details',
+              }}
+            />
+            <Stack.Screen
+              name="Feedback"
+              component={FeedbackScreen}
+              options={{
+                title: 'Event Feedback',
+              }}
+            />
+          </>
+        ) : (
+          <>
+            <Stack.Screen
+              name="Login"
+              component={LoginScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Signup"
+              component={SignupScreen}
+              options={{
+                title: 'Create Account',
+                headerRight: () => <ThemeToggleButton />,
+              }}
+            />
+          </>
+        )}
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
 };
 
 export default function App() {
