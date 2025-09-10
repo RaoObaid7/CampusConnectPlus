@@ -2,11 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import EventCard from './EventCard';
+import Card3D from './Card3D';
+import { useScreenSize } from './ResponsiveLayout';
 import { getRecommendedEvents } from '../utils/aiRecommendations';
 import { mockEvents } from '../data/mockEvents';
+import { spacing, borderRadius, typography } from '../utils/designSystem';
 
-const AIRecommendations = ({ navigation }) => {
+const AIRecommendations = ({ navigation, isSidebar = false }) => {
   const { theme } = useTheme();
+  const { isMobile } = useScreenSize();
   const [recommendedEvents, setRecommendedEvents] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -32,23 +36,23 @@ const AIRecommendations = ({ navigation }) => {
 
   if (loading) {
     return (
-      <View style={styles.container}>
+      <Card3D variant="elevated" style={[styles.container, isSidebar && styles.sidebarContainer]}>
         <Text style={[styles.title, { color: theme.text }]}>🤖 AI Recommendations</Text>
         <Text style={[styles.loadingText, { color: theme.textSecondary }]}>
           Analyzing your preferences...
         </Text>
-      </View>
+      </Card3D>
     );
   }
 
   if (recommendedEvents.length === 0) {
     return (
-      <View style={styles.container}>
+      <Card3D variant="elevated" style={[styles.container, isSidebar && styles.sidebarContainer]}>
         <Text style={[styles.title, { color: theme.text }]}>🤖 AI Recommendations</Text>
         <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
           Register for events to get personalized recommendations!
         </Text>
-      </View>
+      </Card3D>
     );
   }
 
@@ -62,46 +66,60 @@ const AIRecommendations = ({ navigation }) => {
   );
 
   return (
-    <View style={styles.container}>
+    <Card3D variant="elevated" style={[styles.container, isSidebar && styles.sidebarContainer]}>
       <Text style={[styles.title, { color: theme.text }]}>🤖 Recommended for You</Text>
       <FlatList 
-        data={recommendedEvents}
+        data={isSidebar ? recommendedEvents.slice(0, 3) : recommendedEvents}
         renderItem={renderRecommendedEvent}
         keyExtractor={(item) => item.id}
-        horizontal 
+        horizontal={!isSidebar && !isMobile}
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[
+          styles.scrollContent,
+          (isSidebar || isMobile) && styles.verticalScrollContent
+        ]}
+        scrollEnabled={!isSidebar || isMobile}
+        nestedScrollEnabled={isMobile && isSidebar}
       />
-    </View>
+    </Card3D>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 16,
+    marginVertical: spacing.md,
+    marginHorizontal: spacing.sm,
+  },
+  sidebarContainer: {
+    marginVertical: spacing.sm,
+    marginHorizontal: 0,
   },
   title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginHorizontal: 16,
-    marginBottom: 12,
+    fontSize: typography.fontSize.lg,
+    fontWeight: typography.fontWeight.bold,
+    marginBottom: spacing.sm,
+    letterSpacing: 0.5,
   },
   loadingText: {
-    fontSize: 16,
+    fontSize: typography.fontSize.sm,
     textAlign: 'center',
-    marginTop: 20,
+    marginTop: spacing.md,
+    fontWeight: typography.fontWeight.medium,
   },
   emptyText: {
-    fontSize: 16,
+    fontSize: typography.fontSize.sm,
     textAlign: 'center',
-    marginTop: 20,
-    marginHorizontal: 32,
+    marginTop: spacing.md,
+    lineHeight: typography.fontSize.sm * 1.4,
+    fontWeight: typography.fontWeight.medium,
   },
-  scrollContent: {
-    paddingHorizontal: 8,
+  verticalScrollContent: {
+    paddingHorizontal: 0,
   },
   cardContainer: {
-    width: 300,
+    width: 280,
+    marginBottom: spacing.sm,
   },
 });
 

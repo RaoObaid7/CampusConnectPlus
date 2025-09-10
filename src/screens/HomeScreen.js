@@ -1,18 +1,29 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, SafeAreaView } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
+import Background3D from '../components/Background3D';
+import { SidebarLayout, useScreenSize } from '../components/ResponsiveLayout';
 import SearchFilterBar from '../components/SearchFilterBar';
 import EventList from '../components/EventList';
 import AIRecommendations from '../components/AIRecommendations';
 
 const HomeScreen = ({ navigation }) => {
   const { theme } = useTheme();
+  const { isMobile } = useScreenSize();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [sortBy, setSortBy] = useState('date');
 
-  return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+  // AI Recommendations Sidebar Content
+  const sidebarContent = (
+    <View style={[styles.sidebar, { overflowY: 'scroll' }]}>
+      <AIRecommendations navigation={navigation} isSidebar={true} />
+    </View>
+  );
+
+  // Main Events Content
+  const mainContent = (
+    <View style={[styles.mainContent, { overflowY: 'scroll' }]}>
       <SearchFilterBar
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
@@ -26,9 +37,23 @@ const HomeScreen = ({ navigation }) => {
         searchQuery={searchQuery}
         selectedCategory={selectedCategory}
         sortBy={sortBy}
-        headerContent={<AIRecommendations navigation={navigation} />}
+        // On mobile, AI recommendations are shown in the mobile sidebar
+        headerContent={isMobile ? null : null}
       />
-    </SafeAreaView>
+    </View>
+  );
+
+  return (
+    <Background3D variant="vibrant">
+      <SafeAreaView style={styles.container}>
+        <SidebarLayout
+          sidebar={sidebarContent}
+          content={mainContent}
+          sidebarWidth={450}
+          position="left"
+        />
+      </SafeAreaView>
+    </Background3D>
   );
 };
 
@@ -36,7 +61,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  
+  sidebar: {
+    flex: 1,
+    // Sidebar styling handled by SidebarLayout
+  },
+  mainContent: {
+    flex: 1,
+  },
 });
 
 export default HomeScreen;

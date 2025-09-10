@@ -44,11 +44,46 @@ export const AuthProvider = ({ children }) => {
         const userData = JSON.parse(storedAuth);
         setUser(userData);
         setIsAuthenticated(true);
+      } else {
+        // Create a default test user for development
+        await createDefaultTestUser();
       }
     } catch (error) {
       console.error('Error checking auth status:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const createDefaultTestUser = async () => {
+    try {
+      const existingUsers = await getStoredUsers();
+      const testEmail = 'test.123@iqra.edu.pk';
+      
+      if (!existingUsers[testEmail]) {
+        const testUser = {
+          id: 'test_user_123',
+          email: testEmail,
+          fullName: 'Test Student',
+          studentId: 'TEST123',
+          department: 'Computer Science',
+          university: 'IQRA University',
+          major: 'Computer Science',
+          year: '3rd Year',
+          registeredAt: new Date().toISOString(),
+          password: 'test123' // In production, this should be hashed
+        };
+        
+        const updatedUsers = {
+          ...existingUsers,
+          [testEmail]: testUser
+        };
+        
+        await AsyncStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updatedUsers));
+        console.log('Test user created:', testEmail, 'password: test123');
+      }
+    } catch (error) {
+      console.error('Error creating test user:', error);
     }
   };
 
@@ -142,11 +177,20 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
+      console.log('Logout function called');
+      setLoading(true);
       await AsyncStorage.removeItem(AUTH_STORAGE_KEY);
+      console.log('Auth storage cleared');
       setUser(null);
       setIsAuthenticated(false);
+      console.log('User state reset, isAuthenticated set to false');
+      // Small delay to ensure state changes are propagated
+      setTimeout(() => {
+        setLoading(false);
+      }, 100);
     } catch (error) {
       console.error('Error logging out:', error);
+      setLoading(false);
     }
   };
 
@@ -203,6 +247,30 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const updateUserPreferences = async (preferences) => {
+    try {
+      if (!user) throw new Error('No user logged in');
+      
+      const updatedUser = { ...user, preferences };
+      
+      // Update in auth storage
+      await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(updatedUser));
+      
+      // Update in users storage
+      const existingUsers = await getStoredUsers();
+      if (existingUsers[user.email]) {
+        existingUsers[user.email] = { ...existingUsers[user.email], preferences };
+        await AsyncStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(existingUsers));
+      }
+      
+      setUser(updatedUser);
+      return updatedUser;
+    } catch (error) {
+      console.error('Error updating user preferences:', error);
+      throw error;
+    }
+  };
+
   const value = {
     user,
     isAuthenticated,
@@ -211,6 +279,7 @@ export const AuthProvider = ({ children }) => {
     signUp,
     logout,
     updateProfile,
+    updateUserPreferences,
     resetPassword,
     validateUniversityEmail,
     validDomains: VALID_UNIVERSITY_DOMAINS

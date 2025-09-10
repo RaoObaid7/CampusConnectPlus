@@ -2,20 +2,27 @@ import React, { useState } from 'react';
 import { 
   View, 
   Text, 
-  TextInput, 
   TouchableOpacity, 
   StyleSheet, 
-  Alert, 
   SafeAreaView, 
   ScrollView,
-  ActivityIndicator 
+  Dimensions
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import Button3D, { GradientButton3D, NeumorphicButton3D } from '../components/Button3D';
+import Input3D, { FloatingLabelInput3D, GradientBorderInput3D } from '../components/Input3D';
+import Card3D, { GlassCard3D, FloatingCard3D } from '../components/Card3D';
+import { useScreenSize } from '../components/ResponsiveLayout';
+import { spacing, borderRadius, typography, gradients } from '../utils/designSystem';
+
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const LoginScreen = ({ navigation }) => {
   const { theme } = useTheme();
-  const { login, validateUniversityEmail } = useAuth();
+  const { validateUniversityEmail, login } = useAuth();
+  const { isMobile } = useScreenSize();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -59,8 +66,11 @@ const LoginScreen = ({ navigation }) => {
     // Clear any previous success messages
     setSuccessMessage('');
     
+    console.log('Login attempt with:', { email: email.trim(), password: password.length + ' chars' });
+    
     // Validate form
     if (!validateForm()) {
+      console.log('Form validation failed');
       return;
     }
 
@@ -68,16 +78,19 @@ const LoginScreen = ({ navigation }) => {
       setLoading(true);
       setErrors({}); // Clear any previous errors
       
-      await login({ email: email.trim(), password });
+      console.log('Attempting login...');
+      const result = await login({ email: email.trim(), password });
+      console.log('Login result:', result);
       
       // Show success message
       setSuccessMessage('Login successful! Redirecting to your dashboard...');
       
       // Navigation is handled by AuthProvider state change
     } catch (error) {
+      console.error('Login error:', error);
       // Show specific error messages based on the error
       const newErrors = {};
-      
+      console.log('Error message:', error.message);
       if (error.message.includes('No account found')) {
         newErrors.email = 'No account exists with this email address. Please sign up first.';
       } else if (error.message.includes('Invalid password')) {
@@ -143,140 +156,217 @@ const LoginScreen = ({ navigation }) => {
     );
   };
 
-  return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={[styles.appName, { color: theme.primary }]}>CampusConnect+</Text>
-          <Text style={[styles.tagline, { color: theme.textSecondary }]}>
-            Connect with your campus community
-          </Text>
+  // Left panel content (illustration and branding)
+  const leftContent = (
+    <View style={styles.leftPanel}>
+      {/* Campus Illustration */}
+      <View style={styles.illustrationContainer}>
+        <LinearGradient
+          colors={[theme.primaryLight, theme.primary, theme.secondaryLight]}
+          style={styles.illustrationGradient}
+        >
+          <Text style={styles.campusEmoji}>🏢</Text>
+          <Text style={styles.studentEmojis}>👩‍🎓👨‍🎓👩‍💻👨‍🔬</Text>
+        </LinearGradient>
+      </View>
+      
+      {/* Branding */}
+      <View style={styles.brandingSection}>
+        <GradientButton3D
+          title="CampusConnect+"
+          colors={[theme.primaryLight, theme.primary, theme.primaryDark]}
+          size="large"
+          style={styles.titleButton}
+          textStyle={styles.appName}
+          disabled
+        />
+        <Text style={[styles.tagline, { color: theme.textSecondary }]}>
+          Connect with your campus community ✨
+        </Text>
+        
+        {/* Features List */}
+        <View style={styles.featuresList}>
+          <View style={styles.featureItem}>
+            <Text style={styles.featureIcon}>🎆</Text>
+            <Text style={[styles.featureText, { color: theme.textSecondary }]}>
+              Discover campus events
+            </Text>
+          </View>
+          <View style={styles.featureItem}>
+            <Text style={styles.featureIcon}>🤝</Text>
+            <Text style={[styles.featureText, { color: theme.textSecondary }]}>
+              Connect with students
+            </Text>
+          </View>
+          <View style={styles.featureItem}>
+            <Text style={styles.featureIcon}>🏆</Text>
+            <Text style={[styles.featureText, { color: theme.textSecondary }]}>
+              Join competitions
+            </Text>
+          </View>
+          <View style={styles.featureItem}>
+            <Text style={styles.featureIcon}>🤖</Text>
+            <Text style={[styles.featureText, { color: theme.textSecondary }]}>
+              AI recommendations
+            </Text>
+          </View>
         </View>
+      </View>
+    </View>
+  );
 
-        {/* Login Form */}
-        <View style={[styles.formContainer, { backgroundColor: theme.card }]}>
-          <Text style={[styles.formTitle, { color: theme.text }]}>Welcome Back!</Text>
-          <Text style={[styles.formSubtitle, { color: theme.textSecondary }]}>
-            Sign in with your university email
-          </Text>
+  // Right panel content (login form)
+  const rightContent = (
+    <ScrollView 
+      style={styles.rightPanel}
+      contentContainerStyle={styles.rightPanelContent}
+      showsVerticalScrollIndicator={false}
+    >
 
-          {/* General Error Message */}
-          {errors.general && renderErrorMessage(errors.general)}
-          
-          {/* Success Message */}
-          {renderSuccessMessage()}
+          {/* Login Form with Glass Effect */}
+          <GlassCard3D style={styles.formContainer}>
+            <View style={styles.formHeader}>
+              <Text style={[styles.formTitle, { color: theme.text }]}>Welcome Back! 👋</Text>
+              <Text style={[styles.formSubtitle, { color: theme.textSecondary }]}>
+                Sign in with your university email
+              </Text>
+            </View>
 
-          {/* Email Input */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.inputLabel, { color: theme.text }]}>University Email</Text>
-            <TextInput
-              style={[styles.input, { 
-                backgroundColor: theme.surface, 
-                color: theme.text,
-                borderColor: errors.email ? (theme.error || '#e74c3c') : theme.border,
-                borderWidth: errors.email ? 2 : 1
-              }]}
+            {/* General Error Message */}
+            {errors.general && renderErrorMessage(errors.general)}
+            
+            {/* Success Message */}
+            {renderSuccessMessage()}
+
+            {/* Email Input with 3D Effects */}
+            <FloatingLabelInput3D
+              label="University Email"
               placeholder="name.id@iqra.edu.pk"
-              placeholderTextColor={theme.textSecondary}
               value={email}
               onChangeText={handleEmailChange}
               onBlur={() => setEmailTouched(true)}
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
+              error={errors.email}
+              gradientBorder={true}
+              style={styles.inputContainer}
+              icon={<Text style={styles.inputIcon}>📧</Text>}
             />
-            {errors.email && renderErrorMessage(errors.email)}
-          </View>
 
-          {/* Password Input */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.inputLabel, { color: theme.text }]}>Password</Text>
-            <View style={styles.passwordContainer}>
-              <TextInput
-                style={[styles.input, { 
-                  backgroundColor: theme.surface, 
-                  color: theme.text,
-                  borderColor: errors.password ? (theme.error || '#e74c3c') : theme.border,
-                  borderWidth: errors.password ? 2 : 1,
-                  paddingRight: 50
-                }]}
-                placeholder="Enter your password"
-                placeholderTextColor={theme.textSecondary}
-                value={password}
-                onChangeText={handlePasswordChange}
-                onBlur={() => setPasswordTouched(true)}
-                secureTextEntry={!showPassword}
-              />
-              <TouchableOpacity
-                style={styles.eyeButton}
-                onPress={() => setShowPassword(!showPassword)}
-              >
-                <Text style={[styles.eyeIcon, { color: theme.textSecondary }]}>
-                  {showPassword ? '🙈' : '👁️'}
+            {/* Password Input with 3D Effects */}
+            <FloatingLabelInput3D
+              label="Password"
+              placeholder="Enter your password"
+              value={password}
+              onChangeText={handlePasswordChange}
+              onBlur={() => setPasswordTouched(true)}
+              secureTextEntry={!showPassword}
+              error={errors.password}
+              gradientBorder={true}
+              style={styles.inputContainer}
+              icon={<Text style={styles.inputIcon}>🔒</Text>}
+              rightIcon={
+                <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                  <Text style={styles.eyeIcon}>
+                    {showPassword ? '🙈' : '👁️'}
+                  </Text>
+                </TouchableOpacity>
+              }
+            />
+
+            {/* Forgot Password */}
+            <TouchableOpacity 
+              onPress={handleForgotPassword}
+              style={styles.forgotPasswordContainer}
+            >
+              <Text style={[styles.forgotPassword, { color: theme.primary }]}>
+                Forgot Password? 🤔
+              </Text>
+            </TouchableOpacity>
+
+            {/* Login Button with 3D Effect */}
+            <GradientButton3D
+              title={loading ? "Signing In..." : "Sign In 🚀"}
+              onPress={handleLogin}
+              loading={loading}
+              disabled={loading}
+              colors={[theme.primaryLight, theme.primary, theme.primaryDark]}
+              size="large"
+              style={styles.loginButton}
+            />
+
+            {/* Sign Up Link */}
+            <View style={styles.signupContainer}>
+              <Text style={[styles.signupText, { color: theme.textSecondary }]}>
+                Don't have an account?{' '}
+              </Text>
+              <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
+                <Text style={[styles.signupLink, { color: theme.primary }]}>
+                  Sign Up ✨
                 </Text>
               </TouchableOpacity>
             </View>
-            {errors.password && renderErrorMessage(errors.password)}
-          </View>
+          </GlassCard3D>
 
-          {/* Forgot Password */}
-          <TouchableOpacity onPress={handleForgotPassword}>
-            <Text style={[styles.forgotPassword, { color: theme.primary }]}>
-              Forgot Password?
-            </Text>
-          </TouchableOpacity>
-
-          {/* Login Button */}
-          <TouchableOpacity
-            style={[styles.loginButton, { 
-              backgroundColor: theme.primary,
-              opacity: loading ? 0.7 : 1 
-            }]}
-            onPress={handleLogin}
-            disabled={loading}
+          {/* University Email Info */}
+          <Card3D 
+            variant="elevated" 
+            size="medium" 
+            style={styles.infoContainer}
           >
-            {loading ? (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator color="#fff" size="small" />
-                <Text style={[styles.loginButtonText, { marginLeft: 10 }]}>Signing In...</Text>
-              </View>
-            ) : (
-              <Text style={styles.loginButtonText}>Sign In</Text>
-            )}
-          </TouchableOpacity>
-
-          {/* Sign Up Link */}
-          <View style={styles.signupContainer}>
-            <Text style={[styles.signupText, { color: theme.textSecondary }]}>
-              Don't have an account?{' '}
-            </Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
-              <Text style={[styles.signupLink, { color: theme.primary }]}>
-                Sign Up
+            <LinearGradient
+              colors={[theme.info + '20', theme.primary + '10']}
+              style={styles.infoGradient}
+            >
+              <Text style={[styles.infoTitle, { color: theme.text }]}>📧 University Email Required</Text>
+              <Text style={[styles.infoText, { color: theme.textSecondary }]}>
+                Only students with valid university email addresses can access CampusConnect+.
+                Accepted domains include: @iqra.edu.pk, @comsats.edu.pk, @pu.edu.pk, @lums.edu.pk, @nust.edu.pk, and other verified university domains.
+                This ensures a safe and secure campus community. 🛡️
               </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+              
+              <View style={styles.helpSection}>
+                <Text style={[styles.helpTitle, { color: theme.text }]}>Need Help? 🤝</Text>
+                <Text style={[styles.helpText, { color: theme.textSecondary }]}>• Forgot your password? Click "Forgot Password?" above</Text>
+                <Text style={[styles.helpText, { color: theme.textSecondary }]}>• Don't have an account? Click "Sign Up" above</Text>
+                <Text style={[styles.helpText, { color: theme.textSecondary }]}>• Having trouble? Contact your university IT support</Text>
+              </View>
+            </LinearGradient>
+          </Card3D>
+    </ScrollView>
+  );
 
-        {/* University Email Info */}
-        <View style={[styles.infoContainer, { backgroundColor: theme.surface }]}>
-          <Text style={[styles.infoTitle, { color: theme.text }]}>📧 University Email Required</Text>
-          <Text style={[styles.infoText, { color: theme.textSecondary }]}>
-            Only students with valid university email addresses can access CampusConnect+.
-            Accepted domains include: @iqra.edu.pk, @comsats.edu.pk, @pu.edu.pk, @lums.edu.pk, @nust.edu.pk, and other verified university domains.
-            This ensures a safe and secure campus community.
-          </Text>
-          
-          <View style={styles.helpSection}>
-            <Text style={[styles.helpTitle, { color: theme.text }]}>Need Help?</Text>
-            <Text style={[styles.helpText, { color: theme.textSecondary }]}>• Forgot your password? Click "Forgot Password?" above</Text>
-            <Text style={[styles.helpText, { color: theme.textSecondary }]}>• Don't have an account? Click "Sign Up" above</Text>
-            <Text style={[styles.helpText, { color: theme.textSecondary }]}>• Having trouble? Contact your university IT support</Text>
+  return (
+    <View style={[styles.container, { backgroundColor: theme.backgroundSolid }]}>
+      <SafeAreaView style={styles.safeArea}>
+        {isMobile ? (
+          // Mobile Layout - Vertical
+          <ScrollView 
+            style={styles.mobileContainer}
+            contentContainerStyle={styles.mobileScrollContent}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.mobileLeftPanel}>
+              {leftContent}
+            </View>
+            <View style={styles.mobileRightPanel}>
+              {rightContent}
+            </View>
+          </ScrollView>
+        ) : (
+          // Desktop Layout - Horizontal
+          <View style={styles.desktopContainer}>
+            <View style={styles.desktopLeftPanel}>
+              {leftContent}
+            </View>
+            <View style={styles.desktopRightPanel}>
+              {rightContent}
+            </View>
           </View>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+        )}
+      </SafeAreaView>
+    </View>
   );
 };
 
@@ -284,87 +374,165 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  scrollContent: {
+  safeArea: {
+    flex: 1,
+  },
+  
+  // Mobile Layout Styles
+  mobileContainer: {
+    flex: 1,
+  },
+  mobileScrollContent: {
+    flexGrow: 1,
+  },
+  mobileLeftPanel: {
+    minHeight: screenHeight * 0.4,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.xl,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  mobileRightPanel: {
+    flex: 1,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.xl,
+  },
+  
+  // Desktop Layout Styles
+  desktopContainer: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  desktopLeftPanel: {
+    flex: 1.2,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.xl,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  desktopRightPanel: {
+    flex: 1,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.xl,
+    justifyContent: 'center',
+  },
+  
+  // Left Panel Styles
+  leftPanel: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing.lg,
+  },
+  illustrationContainer: {
+    marginBottom: spacing['2xl'],
+  },
+  illustrationGradient: {
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 16,
+  },
+  campusEmoji: {
+    fontSize: 60,
+    marginBottom: spacing.sm,
+  },
+  studentEmojis: {
+    fontSize: 24,
+    textAlign: 'center',
+  },
+  brandingSection: {
+    alignItems: 'center',
+  },
+  titleButton: {
+    marginBottom: spacing.md,
+  },
+  featuresList: {
+    marginTop: spacing.xl,
+    alignItems: 'flex-start',
+  },
+  featureItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing.md,
+  },
+  featureIcon: {
+    fontSize: typography.fontSize.lg,
+    marginRight: spacing.md,
+    width: 30,
+    textAlign: 'center',
+  },
+  featureText: {
+    fontSize: typography.fontSize.md,
+    fontWeight: typography.fontWeight.medium,
+    letterSpacing: 0.3,
+  },
+  
+  // Right Panel Styles
+  rightPanel: {
+    flex: 1,
+  },
+  rightPanelContent: {
     flexGrow: 1,
     justifyContent: 'center',
-    padding: 20,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 40,
+    padding: spacing.lg,
   },
   appName: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    marginBottom: 8,
+    fontSize: typography.fontSize['3xl'],
+    fontWeight: typography.fontWeight.black,
+    letterSpacing: 1,
   },
   tagline: {
-    fontSize: 16,
+    fontSize: typography.fontSize.md,
     textAlign: 'center',
+    fontWeight: typography.fontWeight.medium,
+    letterSpacing: 0.5,
   },
   formContainer: {
-    padding: 24,
-    borderRadius: 16,
-    marginBottom: 24,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    marginBottom: spacing.xl,
+  },
+  formHeader: {
+    marginBottom: spacing.lg,
   },
   formTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: typography.fontSize['2xl'],
+    fontWeight: typography.fontWeight.bold,
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: spacing.xs,
+    letterSpacing: 0.5,
   },
   formSubtitle: {
-    fontSize: 16,
+    fontSize: typography.fontSize.md,
     textAlign: 'center',
-    marginBottom: 32,
+    fontWeight: typography.fontWeight.medium,
+    letterSpacing: 0.3,
   },
-  inputGroup: {
-    marginBottom: 20,
+  inputContainer: {
+    marginBottom: spacing.sm,
   },
-  inputLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16,
-  },
-  passwordContainer: {
-    position: 'relative',
-  },
-  eyeButton: {
-    position: 'absolute',
-    right: 16,
-    top: 12,
-    padding: 4,
+  inputIcon: {
+    fontSize: 18,
   },
   eyeIcon: {
-    fontSize: 20,
+    fontSize: 18,
+  },
+  forgotPasswordContainer: {
+    alignItems: 'flex-end',
+    marginBottom: spacing.lg,
   },
   forgotPassword: {
-    fontSize: 16,
-    textAlign: 'right',
-    marginBottom: 24,
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.medium,
+    letterSpacing: 0.3,
   },
   loginButton: {
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  loginButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
+    marginBottom: spacing.lg,
   },
   signupContainer: {
     flexDirection: 'row',
@@ -372,63 +540,67 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   signupText: {
-    fontSize: 16,
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.medium,
   },
   signupLink: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.bold,
+    letterSpacing: 0.3,
   },
   infoContainer: {
-    padding: 16,
-    borderRadius: 12,
-    marginTop: 16,
+    marginTop: spacing.md,
+  },
+  infoGradient: {
+    borderRadius: borderRadius.lg,
+    padding: spacing.md,
   },
   infoTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 8,
+    fontSize: typography.fontSize.md,
+    fontWeight: typography.fontWeight.bold,
+    marginBottom: spacing.sm,
+    letterSpacing: 0.3,
   },
   infoText: {
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: typography.fontSize.sm,
+    lineHeight: typography.fontSize.sm * 1.5,
+    fontWeight: typography.fontWeight.normal,
   },
   errorText: {
-    fontSize: 14,
-    marginTop: 5,
-    marginBottom: 10,
+    fontSize: typography.fontSize.sm,
+    marginTop: spacing.xs,
+    marginBottom: spacing.sm,
+    fontWeight: typography.fontWeight.medium,
   },
   successContainer: {
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 16,
+    padding: spacing.sm,
+    borderRadius: borderRadius.md,
+    marginBottom: spacing.md,
     borderWidth: 1,
     borderColor: '#2ecc71',
   },
   successText: {
-    fontSize: 14,
+    fontSize: typography.fontSize.sm,
     textAlign: 'center',
-    fontWeight: '600',
-  },
-  loadingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    fontWeight: typography.fontWeight.semibold,
   },
   helpSection: {
-    marginTop: 16,
-    paddingTop: 16,
+    marginTop: spacing.md,
+    paddingTop: spacing.md,
     borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
+    borderTopColor: 'rgba(255, 255, 255, 0.2)',
   },
   helpTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 8,
+    fontSize: typography.fontSize.md,
+    fontWeight: typography.fontWeight.bold,
+    marginBottom: spacing.sm,
+    letterSpacing: 0.3,
   },
   helpText: {
-    fontSize: 13,
-    lineHeight: 18,
-    marginBottom: 4,
+    fontSize: typography.fontSize.xs,
+    lineHeight: typography.fontSize.xs * 1.4,
+    marginBottom: spacing.xs,
+    fontWeight: typography.fontWeight.normal,
   },
 });
 

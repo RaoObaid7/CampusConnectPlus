@@ -2,16 +2,24 @@ import React, { useState } from 'react';
 import { 
   View, 
   Text, 
-  TextInput, 
+  TextInput,
   TouchableOpacity, 
   StyleSheet, 
-  Alert, 
   SafeAreaView, 
   ScrollView,
+  Dimensions,
   ActivityIndicator 
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import Button3D, { GradientButton3D, OutlineButton3D } from '../components/Button3D';
+import Input3D, { FloatingLabelInput3D } from '../components/Input3D';
+import Card3D, { GlassCard3D } from '../components/Card3D';
+import { useScreenSize } from '../components/ResponsiveLayout';
+import { spacing, borderRadius, typography } from '../utils/designSystem';
+
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const DEPARTMENTS = [
   'Computer Science',
@@ -318,7 +326,7 @@ const SignupScreen = ({ navigation }) => {
         </View>
 
         {/* Signup Form */}
-        <View style={[styles.formContainer, { backgroundColor: theme.card }]}>
+        <GlassCard3D style={styles.formContainer}>
           <Text style={[styles.formTitle, { color: theme.text }]}>Create Account</Text>
           <Text style={[styles.formSubtitle, { color: theme.textSecondary }]}>
             Register with your university credentials
@@ -331,150 +339,104 @@ const SignupScreen = ({ navigation }) => {
           {renderSuccessMessage()}
 
           {/* Full Name */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.inputLabel, { color: theme.text }]}>Full Name</Text>
-            <TextInput
-              style={[styles.input, { 
-                backgroundColor: theme.surface, 
-                color: theme.text,
-                borderColor: errors.fullName ? theme.error : theme.border,
-                borderWidth: errors.fullName ? 2 : 1
-              }]}
-              placeholder="Enter your full name"
-              placeholderTextColor={theme.textSecondary}
-              value={formData.fullName}
-              onChangeText={(value) => updateFormData('fullName', value)}
-              onBlur={() => setFieldTouched('fullName')}
-              autoCapitalize="words"
-            />
-            {errors.fullName && renderErrorMessage(errors.fullName)}
-          </View>
+          <FloatingLabelInput3D
+            label="Full Name"
+            placeholder="Enter your full name"
+            value={formData.fullName}
+            onChangeText={(value) => updateFormData('fullName', value)}
+            onBlur={() => setFieldTouched('fullName')}
+            autoCapitalize="words"
+            error={errors.fullName}
+            gradientBorder={true}
+            style={styles.inputContainer}
+            icon={<Text style={styles.inputIcon}>👤</Text>}
+          />
 
           {/* University Email */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.inputLabel, { color: theme.text }]}>University Email</Text>
-            <TextInput
-              style={[styles.input, { 
-                backgroundColor: theme.surface, 
-                color: theme.text,
-                borderColor: errors.email ? theme.error : theme.border,
-                borderWidth: errors.email ? 2 : 1
-              }]}
-              placeholder="name.id@iqra.edu.pk"
-              placeholderTextColor={theme.textSecondary}
-              value={formData.email}
-              onChangeText={(value) => updateFormData('email', value)}
-              onBlur={() => setFieldTouched('email')}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-            {errors.email && renderErrorMessage(errors.email)}
-          </View>
+          <FloatingLabelInput3D
+            label="University Email"
+            placeholder="name.id@iqra.edu.pk"
+            value={formData.email}
+            onChangeText={(value) => updateFormData('email', value)}
+            onBlur={() => setFieldTouched('email')}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+            error={errors.email}
+            gradientBorder={true}
+            style={styles.inputContainer}
+            icon={<Text style={styles.inputIcon}>📧</Text>}
+          />
 
           {/* Student ID */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.inputLabel, { color: theme.text }]}>Student ID</Text>
-            <TextInput
-              style={[styles.input, { 
-                backgroundColor: theme.surface, 
-                color: theme.text,
-                borderColor: errors.studentId ? theme.error : theme.border,
-                borderWidth: errors.studentId ? 2 : 1
-              }]}
-              placeholder="Enter your student ID"
-              placeholderTextColor={theme.textSecondary}
-              value={formData.studentId}
-              onChangeText={(value) => updateFormData('studentId', value)}
-              onBlur={() => setFieldTouched('studentId')}
-              autoCapitalize="characters"
-            />
-            {errors.studentId && renderErrorMessage(errors.studentId)}
-          </View>
+          <FloatingLabelInput3D
+            label="Student ID"
+            placeholder="Enter your student ID"
+            value={formData.studentId}
+            onChangeText={(value) => updateFormData('studentId', value)}
+            onBlur={() => setFieldTouched('studentId')}
+            autoCapitalize="characters"
+            error={errors.studentId}
+            gradientBorder={true}
+            style={styles.inputContainer}
+            icon={<Text style={styles.inputIcon}>🎓</Text>}
+          />
 
           {/* Department Picker */}
           {renderDepartmentPicker()}
 
           {/* Password */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.inputLabel, { color: theme.text }]}>Password</Text>
-            <View style={styles.passwordContainer}>
-              <TextInput
-                style={[styles.input, { 
-                  backgroundColor: theme.surface, 
-                  color: theme.text,
-                  borderColor: errors.password ? theme.error : theme.border,
-                  borderWidth: errors.password ? 2 : 1,
-                  paddingRight: 50
-                }]}
-                placeholder="Create a password (min 6 characters)"
-                placeholderTextColor={theme.textSecondary}
-                value={formData.password}
-                onChangeText={(value) => updateFormData('password', value)}
-                onBlur={() => setFieldTouched('password')}
-                secureTextEntry={!showPassword}
-              />
-              <TouchableOpacity
-                style={styles.eyeButton}
-                onPress={() => setShowPassword(!showPassword)}
-              >
-                <Text style={[styles.eyeIcon, { color: theme.textSecondary }]}>
+          <FloatingLabelInput3D
+            label="Password"
+            placeholder="Create a password (min 6 characters)"
+            value={formData.password}
+            onChangeText={(value) => updateFormData('password', value)}
+            onBlur={() => setFieldTouched('password')}
+            secureTextEntry={!showPassword}
+            error={errors.password}
+            gradientBorder={true}
+            style={styles.inputContainer}
+            icon={<Text style={styles.inputIcon}>🔒</Text>}
+            rightIcon={
+              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                <Text style={styles.eyeIcon}>
                   {showPassword ? '🙈' : '👁️'}
                 </Text>
               </TouchableOpacity>
-            </View>
-            {errors.password && renderErrorMessage(errors.password)}
-          </View>
+            }
+          />
 
           {/* Confirm Password */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.inputLabel, { color: theme.text }]}>Confirm Password</Text>
-            <View style={styles.passwordContainer}>
-              <TextInput
-                style={[styles.input, { 
-                  backgroundColor: theme.surface, 
-                  color: theme.text,
-                  borderColor: errors.confirmPassword ? theme.error : theme.border,
-                  borderWidth: errors.confirmPassword ? 2 : 1,
-                  paddingRight: 50
-                }]}
-                placeholder="Confirm your password"
-                placeholderTextColor={theme.textSecondary}
-                value={formData.confirmPassword}
-                onChangeText={(value) => updateFormData('confirmPassword', value)}
-                onBlur={() => setFieldTouched('confirmPassword')}
-                secureTextEntry={!showConfirmPassword}
-              />
-              <TouchableOpacity
-                style={styles.eyeButton}
-                onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-              >
-                <Text style={[styles.eyeIcon, { color: theme.textSecondary }]}>
+          <FloatingLabelInput3D
+            label="Confirm Password"
+            placeholder="Confirm your password"
+            value={formData.confirmPassword}
+            onChangeText={(value) => updateFormData('confirmPassword', value)}
+            onBlur={() => setFieldTouched('confirmPassword')}
+            secureTextEntry={!showConfirmPassword}
+            error={errors.confirmPassword}
+            gradientBorder={true}
+            style={styles.inputContainer}
+            icon={<Text style={styles.inputIcon}>🔓</Text>}
+            rightIcon={
+              <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
+                <Text style={styles.eyeIcon}>
                   {showConfirmPassword ? '🙈' : '👁️'}
                 </Text>
               </TouchableOpacity>
-            </View>
-            {errors.confirmPassword && renderErrorMessage(errors.confirmPassword)}
-          </View>
+            }
+          />
 
           {/* Signup Button */}
-          <TouchableOpacity
-            style={[styles.signupButton, { 
-              backgroundColor: theme.primary,
-              opacity: loading ? 0.7 : 1 
-            }]}
+          <GradientButton3D
+            title={loading ? "Creating Account..." : "Create Account 🎆"}
             onPress={handleSignup}
+            loading={loading}
             disabled={loading}
-          >
-            {loading ? (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator color="#fff" size="small" />
-                <Text style={[styles.signupButtonText, { marginLeft: 10 }]}>Creating Account...</Text>
-              </View>
-            ) : (
-              <Text style={styles.signupButtonText}>Create Account</Text>
-            )}
-          </TouchableOpacity>
+            colors={[theme.primaryLight, theme.primary, theme.primaryDark]}
+            size="large"
+            style={styles.signupButton}
+          />
 
           {/* Login Link */}
           <View style={styles.loginContainer}>
@@ -487,7 +449,7 @@ const SignupScreen = ({ navigation }) => {
               </Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </GlassCard3D>
 
         {/* Requirements Info */}
         <View style={[styles.requirementsContainer, { backgroundColor: theme.surface }]}>
@@ -682,6 +644,15 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18,
     marginBottom: 4,
+  },
+  inputContainer: {
+    marginBottom: spacing.sm,
+  },
+  inputIcon: {
+    fontSize: 18,
+  },
+  eyeIcon: {
+    fontSize: 18,
   },
 });
 
