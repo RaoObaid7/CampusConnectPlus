@@ -9,6 +9,7 @@ const CustomDropdown = ({
   placeholder = "Select option..." 
 }) => {
   const { theme } = useTheme();
+  const styles = createThemedStyles(theme);
   const [isVisible, setIsVisible] = useState(false);
 
   const handleSelect = (value) => {
@@ -26,8 +27,8 @@ const CustomDropdown = ({
       style={[
         styles.option,
         { 
-          backgroundColor: item.value === selectedValue ? theme.primary : theme.surface,
-          borderBottomColor: theme.border
+          backgroundColor: item.value === selectedValue ? theme.colors.primary : theme.colors.surface,
+          borderBottomColor: theme.colors.border,
         }
       ]}
       onPress={() => handleSelect(item.value)}
@@ -36,8 +37,8 @@ const CustomDropdown = ({
         style={[
           styles.optionText, 
           { 
-            color: item.value === selectedValue ? '#ffffff' : theme.text,
-            fontWeight: item.value === selectedValue ? 'bold' : 'normal'
+            color: item.value === selectedValue ? '#FFFFFF' : theme.colors.text,
+            fontWeight: item.value === selectedValue ? 'bold' : 'normal',
           }
         ]}
       >
@@ -49,29 +50,17 @@ const CustomDropdown = ({
   return (
     <>
       <TouchableOpacity
-        style={[
-          styles.dropdown,
-          { 
-            backgroundColor: theme.surface,
-            borderColor: theme.border
-          }
-        ]}
+        style={styles.dropdown}
         onPress={() => setIsVisible(true)}
       >
         <Text 
-          style={[
-            styles.dropdownText,
-            { color: theme.text }
-          ]}
+          style={styles.dropdownText}
           numberOfLines={1}
         >
           {getSelectedLabel()}
         </Text>
         <Text 
-          style={[
-            styles.arrow,
-            { color: theme.text }
-          ]}
+          style={styles.arrow}
         >
           ▼
         </Text>
@@ -88,13 +77,7 @@ const CustomDropdown = ({
           onPress={() => setIsVisible(false)}
         >
           <View 
-            style={[
-              styles.modalContent,
-              { 
-                backgroundColor: theme.card,
-                borderColor: theme.border
-              }
-            ]}
+            style={styles.modalContent}
           >
             <FlatList
               data={options}
@@ -110,45 +93,51 @@ const CustomDropdown = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createThemedStyles = (theme) => StyleSheet.create({
   dropdown: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 14,
+    borderRadius: theme.radii.m,
+    paddingHorizontal: theme.spacing.m,
+    paddingVertical: theme.spacing.s,
     minHeight: 48,
+    backgroundColor: theme.colors.surface,
+    borderColor: theme.colors.border,
   },
   dropdownText: {
-    fontSize: 16,
+    fontSize: theme.typography.sizes.body,
+    color: theme.colors.text,
     flex: 1,
   },
   arrow: {
     fontSize: 12,
-    marginLeft: 8,
+    marginLeft: theme.spacing.s,
+    color: theme.colors.text,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalContent: {
     width: '80%',
     maxHeight: '60%',
-    borderRadius: 12,
+    borderRadius: theme.radii.l,
     borderWidth: 1,
     overflow: 'hidden',
+    backgroundColor: theme.colors.card,
+    borderColor: theme.colors.border,
   },
   option: {
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingHorizontal: theme.spacing.m,
+    paddingVertical: theme.spacing.m,
     borderBottomWidth: 1,
   },
   optionText: {
-    fontSize: 16,
+    fontSize: theme.typography.sizes.body,
   },
 });
 

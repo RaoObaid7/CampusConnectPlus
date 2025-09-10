@@ -4,6 +4,7 @@ import { useTheme } from '../context/ThemeContext';
 
 const EventCard = ({ event, onPress }) => {
   const { theme } = useTheme();
+  const styles = createThemedStyles(theme);
   
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -17,15 +18,15 @@ const EventCard = ({ event, onPress }) => {
 
   const getCategoryColor = (category) => {
     const colors = {
-      'Tech': '#2196F3',
-      'Sports': '#4CAF50',
-      'Seminar': '#FF9800',
-      'Cultural': '#E91E63',
-      'Workshop': '#9C27B0',
-      'Academic': '#607D8B',
-      'Art': '#FF5722'
+      'Tech': theme.colors.primary,
+      'Sports': theme.colors.success,
+      'Seminar': theme.colors.secondary,
+      'Cultural': '#E91E63', // Custom color
+      'Workshop': '#9C27B0', // Custom color
+      'Academic': '#607D8B', // Custom color
+      'Art': '#FF5722', // Custom color
     };
-    return colors[category] || theme.primary;
+    return colors[category] || theme.colors.primary;
   };
 
   const availableSpots = event.capacity - event.registrationCount;
@@ -33,7 +34,7 @@ const EventCard = ({ event, onPress }) => {
 
   return (
     <TouchableOpacity 
-      style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}
+      style={styles.card}
       onPress={onPress}
       activeOpacity={0.8}
     >
@@ -42,29 +43,29 @@ const EventCard = ({ event, onPress }) => {
           <Text style={styles.categoryText}>{event.category}</Text>
         </View>
         {isAlmostFull && (
-          <View style={[styles.urgencyBadge, { backgroundColor: theme.warning }]}>
+          <View style={[styles.urgencyBadge, { backgroundColor: theme.colors.warning }]}>
             <Text style={styles.urgencyText}>Almost Full!</Text>
           </View>
         )}
       </View>
       
-      <Text style={[styles.title, { color: theme.text }]} numberOfLines={2}>
+      <Text style={styles.title} numberOfLines={2}>
         {event.name}
       </Text>
       
-      <Text style={[styles.time, { color: theme.textSecondary }]}>
+      <Text style={styles.time}>
         📅 {formatDate(event.time)}
       </Text>
       
-      <Text style={[styles.venue, { color: theme.textSecondary }]}>
+      <Text style={styles.venue}>
         📍 {event.venue}
       </Text>
       
       <View style={styles.footer}>
-        <Text style={[styles.attendance, { color: theme.textSecondary }]}>
+        <Text style={styles.attendance}>
           👥 {event.registrationCount}/{event.capacity}
         </Text>
-        <Text style={[styles.spots, { color: isAlmostFull ? theme.warning : theme.success }]}>
+        <Text style={[styles.spots, { color: isAlmostFull ? theme.colors.warning : theme.colors.success }]}>
           {availableSpots} spots left
         </Text>
       </View>
@@ -72,58 +73,59 @@ const EventCard = ({ event, onPress }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createThemedStyles = (theme) => StyleSheet.create({
   card: {
-    borderRadius: 12,
-    padding: 16,
-    marginVertical: 8,
-    marginHorizontal: 16,
+    borderRadius: theme.radii.l,
+    padding: theme.spacing.m,
+    marginVertical: theme.spacing.s,
+    marginHorizontal: theme.spacing.m,
     borderWidth: 1,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    backgroundColor: theme.colors.card,
+    borderColor: theme.colors.border,
+    ...theme.elevation.low,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: theme.spacing.s,
   },
   categoryBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingHorizontal: theme.spacing.s,
+    paddingVertical: theme.spacing.xs,
+    borderRadius: theme.radii.l,
   },
   categoryText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
+    color: '#FFFFFF',
+    fontSize: theme.typography.sizes.caption,
+    fontWeight: theme.typography.weights.medium,
   },
   urgencyBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingHorizontal: theme.spacing.s,
+    paddingVertical: theme.spacing.xs,
+    borderRadius: theme.radii.l,
   },
   urgencyText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
+    color: '#FFFFFF',
+    fontSize: theme.typography.sizes.caption,
+    fontWeight: theme.typography.weights.medium,
   },
   title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 8,
+    fontSize: theme.typography.sizes.h3,
+    fontWeight: theme.typography.weights.bold,
+    color: theme.colors.text,
+    marginBottom: theme.spacing.s,
     lineHeight: 24,
   },
   time: {
-    fontSize: 14,
-    marginBottom: 4,
+    fontSize: theme.typography.sizes.body,
+    color: theme.colors.textSecondary,
+    marginBottom: theme.spacing.xs,
   },
   venue: {
-    fontSize: 14,
-    marginBottom: 12,
+    fontSize: theme.typography.sizes.body,
+    color: theme.colors.textSecondary,
+    marginBottom: theme.spacing.m,
   },
   footer: {
     flexDirection: 'row',
@@ -131,11 +133,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   attendance: {
-    fontSize: 14,
+    fontSize: theme.typography.sizes.body,
+    color: theme.colors.textSecondary,
   },
   spots: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: theme.typography.sizes.caption,
+    fontWeight: theme.typography.weights.bold,
   },
 });
 

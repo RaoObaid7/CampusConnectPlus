@@ -9,6 +9,7 @@ import EventComments from '../components/EventComments';
 const EventDetailsScreen = ({ route, navigation }) => {
   const { event } = route.params;
   const { theme } = useTheme();
+  const styles = createThemedStyles(theme);
   const { user } = useAuth();
   const [registered, setRegistered] = useState(false);
   const [qrCode, setQrCode] = useState(null);
@@ -47,63 +48,63 @@ const EventDetailsScreen = ({ route, navigation }) => {
   };
 
   const renderEventHeader = () => (
-    <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}>
-      <Text style={[styles.title, { color: theme.text }]}>{event.name}</Text>
+    <View style={styles.card}>
+      <Text style={styles.title}>{event.name}</Text>
       
-      <View style={[styles.categoryBadge, { backgroundColor: theme.primary }]}>
+      <View style={styles.categoryBadge}>
         <Text style={styles.categoryText}>{event.category}</Text>
       </View>
 
-      <Text style={[styles.description, { color: theme.text }]}>{event.description}</Text>
+      <Text style={styles.description}>{event.description}</Text>
 
       <View style={styles.detailsContainer}>
-        <Text style={[styles.detailLabel, { color: theme.textSecondary }]}>📅 Date & Time:</Text>
-        <Text style={[styles.detailValue, { color: theme.text }]}>{formatDate(event.time)}</Text>
+        <Text style={styles.detailLabel}>📅 Date & Time:</Text>
+        <Text style={styles.detailValue}>{formatDate(event.time)}</Text>
 
-        <Text style={[styles.detailLabel, { color: theme.textSecondary }]}>📍 Venue:</Text>
-        <Text style={[styles.detailValue, { color: theme.text }]}>{event.venue}</Text>
+        <Text style={styles.detailLabel}>📍 Venue:</Text>
+        <Text style={styles.detailValue}>{event.venue}</Text>
 
-        <Text style={[styles.detailLabel, { color: theme.textSecondary }]}>👥 Attendance:</Text>
-        <Text style={[styles.detailValue, { color: theme.text }]}>
+        <Text style={styles.detailLabel}>👥 Attendance:</Text>
+        <Text style={styles.detailValue}>
           {event.registrationCount}/{event.capacity} registered
         </Text>
 
-        <Text style={[styles.detailLabel, { color: theme.textSecondary }]}>✅ Available Spots:</Text>
-        <Text style={[styles.detailValue, { color: theme.success }]}>
+        <Text style={styles.detailLabel}>✅ Available Spots:</Text>
+        <Text style={[styles.detailValue, { color: theme.colors.success }]}>
           {event.capacity - event.registrationCount} spots remaining
         </Text>
       </View>
 
       {!registered ? (
         <TouchableOpacity 
-          style={[styles.registerButton, { backgroundColor: theme.primary }]}
+          style={styles.registerButton}
           onPress={handleRegistration}
         >
           <Text style={styles.registerButtonText}>Register for Event</Text>
         </TouchableOpacity>
       ) : (
         <View style={styles.registeredContainer}>
-          <Text style={[styles.registeredText, { color: theme.success }]}>
+          <Text style={styles.registeredText}>
             ✅ You are registered for this event!
           </Text>
           
           {qrCode && (
             <View style={styles.qrContainer}>
-              <Text style={[styles.qrTitle, { color: theme.text }]}>Your Check-in QR Code:</Text>
-              <View style={[styles.qrCodeWrapper, { backgroundColor: '#fff' }]}>
+              <Text style={styles.qrTitle}>Your Check-in QR Code:</Text>
+              <View style={styles.qrCodeWrapper}>
                 <QRCode
                   value={qrCode}
                   size={150}
-                  color="#000"
-                  backgroundColor="#fff"
+                  color="#000000"
+                  backgroundColor="#FFFFFF"
                 />
               </View>
-              <Text style={[styles.qrInstructions, { color: theme.textSecondary }]}>
+              <Text style={styles.qrInstructions}>
                 Show this QR code at the event for check-in
               </Text>
               
               <TouchableOpacity 
-                style={[styles.feedbackButton, { backgroundColor: theme.secondary }]}
+                style={styles.feedbackButton}
                 onPress={() => navigation.navigate('Feedback', { event })}
               >
                 <Text style={styles.feedbackButtonText}>Leave Feedback</Text>
@@ -116,102 +117,116 @@ const EventDetailsScreen = ({ route, navigation }) => {
   );
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+    <SafeAreaView style={styles.container}>
       <EventComments eventId={event.id} headerContent={renderEventHeader()} />
     </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
+const createThemedStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: theme.colors.background,
   },
   card: {
-    margin: 16,
-    padding: 20,
-    borderRadius: 12,
+    margin: theme.spacing.m,
+    padding: theme.spacing.l,
+    borderRadius: theme.radii.l,
     borderWidth: 1,
+    backgroundColor: theme.colors.card,
+    borderColor: theme.colors.border,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 12,
+    fontSize: theme.typography.sizes.h2,
+    fontWeight: theme.typography.weights.bold,
+    marginBottom: theme.spacing.m,
+    color: theme.colors.text,
   },
   categoryBadge: {
     alignSelf: 'flex-start',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    marginBottom: 16,
+    paddingHorizontal: theme.spacing.m,
+    paddingVertical: theme.spacing.s,
+    borderRadius: theme.radii.l,
+    marginBottom: theme.spacing.m,
+    backgroundColor: theme.colors.primary,
   },
   categoryText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
+    color: '#FFFFFF',
+    fontSize: theme.typography.sizes.body,
+    fontWeight: theme.typography.weights.medium,
   },
   description: {
-    fontSize: 16,
+    fontSize: theme.typography.sizes.body,
     lineHeight: 24,
-    marginBottom: 20,
+    marginBottom: theme.spacing.l,
+    color: theme.colors.text,
   },
   detailsContainer: {
-    marginBottom: 24,
+    marginBottom: theme.spacing.l,
   },
   detailLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginTop: 12,
-    marginBottom: 4,
+    fontSize: theme.typography.sizes.body,
+    fontWeight: theme.typography.weights.medium,
+    marginTop: theme.spacing.m,
+    marginBottom: theme.spacing.xs,
+    color: theme.colors.textSecondary,
   },
   detailValue: {
-    fontSize: 16,
-    marginBottom: 8,
+    fontSize: theme.typography.sizes.body,
+    marginBottom: theme.spacing.s,
+    color: theme.colors.text,
   },
   registerButton: {
-    padding: 16,
-    borderRadius: 8,
+    padding: theme.spacing.m,
+    borderRadius: theme.radii.m,
     alignItems: 'center',
+    backgroundColor: theme.colors.primary,
   },
   registerButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
+    color: '#FFFFFF',
+    fontSize: theme.typography.sizes.h3,
+    fontWeight: theme.typography.weights.bold,
   },
   registeredContainer: {
     alignItems: 'center',
   },
   registeredText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 20,
+    fontSize: theme.typography.sizes.h3,
+    fontWeight: theme.typography.weights.bold,
+    marginBottom: theme.spacing.l,
+    color: theme.colors.success,
   },
   qrContainer: {
     alignItems: 'center',
   },
   qrTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 12,
+    fontSize: theme.typography.sizes.body,
+    fontWeight: theme.typography.weights.medium,
+    marginBottom: theme.spacing.m,
+    color: theme.colors.text,
   },
   qrCodeWrapper: {
-    padding: 20,
-    borderRadius: 12,
-    marginBottom: 12,
+    padding: theme.spacing.m,
+    borderRadius: theme.radii.l,
+    marginBottom: theme.spacing.m,
+    backgroundColor: '#FFFFFF',
   },
   qrInstructions: {
-    fontSize: 14,
+    fontSize: theme.typography.sizes.caption,
     textAlign: 'center',
-    marginBottom: 16,
+    marginBottom: theme.spacing.m,
+    color: theme.colors.textSecondary,
   },
   feedbackButton: {
-    padding: 12,
-    borderRadius: 8,
+    padding: theme.spacing.s,
+    borderRadius: theme.radii.m,
     alignItems: 'center',
+    backgroundColor: theme.colors.secondary,
   },
   feedbackButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    color: '#FFFFFF',
+    fontSize: theme.typography.sizes.body,
+    fontWeight: theme.typography.weights.medium,
   },
 });
 

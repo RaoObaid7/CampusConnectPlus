@@ -39,7 +39,7 @@ const LogoutButton = () => {
       onPress={logout}
       style={{ marginRight: 15, padding: 8 }}
     >
-      <Text style={{ fontSize: 16, color: theme.text }}>
+      <Text style={{ fontSize: 16, color: theme.colors.text }}>
         👋 {user?.fullName?.split(' ')[0]}
       </Text>
     </TouchableOpacity>
@@ -53,17 +53,18 @@ const TabNavigator = () => {
     <Tab.Navigator
       screenOptions={{
         tabBarStyle: {
-          backgroundColor: theme.surface,
-          borderTopColor: theme.border,
+          backgroundColor: theme.colors.surface,
+          borderTopColor: theme.colors.border,
         },
-        tabBarActiveTintColor: theme.primary,
-        tabBarInactiveTintColor: theme.textSecondary,
+        tabBarActiveTintColor: theme.colors.primary,
+        tabBarInactiveTintColor: theme.colors.textSecondary,
         headerStyle: {
-          backgroundColor: theme.surface,
+          backgroundColor: theme.colors.surface,
         },
-        headerTintColor: theme.text,
+        headerTintColor: theme.colors.text,
         headerTitleStyle: {
-          fontWeight: 'bold',
+          fontWeight: theme.typography.weights.bold,
+          fontSize: theme.typography.sizes.h3,
         },
       }}
     >
@@ -73,7 +74,7 @@ const TabNavigator = () => {
         options={{
           title: 'Events',
           tabBarLabel: 'Events',
-          tabBarIcon: () => <Text style={{ fontSize: 20 }}>📅</Text>,
+          tabBarIcon: ({ color, size }) => <Text style={{ fontSize: size, color: color }}>📅</Text>,
           headerRight: () => (
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <ThemeToggleButton />
@@ -88,7 +89,7 @@ const TabNavigator = () => {
         options={{
           title: 'Social Feed',
           tabBarLabel: 'Social',
-          tabBarIcon: () => <Text style={{ fontSize: 20 }}>💬</Text>,
+          tabBarIcon: ({ color, size }) => <Text style={{ fontSize: size, color: color }}>💬</Text>,
           headerRight: () => (
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <ThemeToggleButton />
@@ -111,13 +112,13 @@ const AppContent = () => {
         flex: 1, 
         justifyContent: 'center', 
         alignItems: 'center', 
-        backgroundColor: theme.background 
+        backgroundColor: theme.colors.background
       }}>
-        <ActivityIndicator size="large" color={theme.primary} />
+        <ActivityIndicator size="large" color={theme.colors.primary} />
         <Text style={{ 
-          marginTop: 16, 
-          fontSize: 16, 
-          color: theme.text 
+          marginTop: theme.spacing.m,
+          fontSize: theme.typography.sizes.body,
+          color: theme.colors.text
         }}>
           Loading CampusConnect+...
         </Text>
@@ -130,11 +131,12 @@ const AppContent = () => {
       <Stack.Navigator
         screenOptions={{
           headerStyle: {
-            backgroundColor: theme.surface,
+            backgroundColor: theme.colors.surface,
           },
-          headerTintColor: theme.text,
+          headerTintColor: theme.colors.text,
           headerTitleStyle: {
-            fontWeight: 'bold',
+            fontWeight: theme.typography.weights.bold,
+            fontSize: theme.typography.sizes.h3,
           },
         }}
       >

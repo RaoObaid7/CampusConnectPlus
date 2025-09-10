@@ -7,6 +7,7 @@ import { saveFeedback } from '../utils/storage';
 const FeedbackScreen = ({ route, navigation }) => {
   const { event } = route.params;
   const { theme } = useTheme();
+  const styles = createThemedStyles(theme);
   const { user } = useAuth();
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
@@ -44,7 +45,7 @@ const FeedbackScreen = ({ route, navigation }) => {
           onPress={() => handleStarPress(i)}
           style={styles.starButton}
         >
-          <Text style={[styles.star, { color: i <= rating ? '#FFD700' : theme.border }]}>
+          <Text style={[styles.star, { color: i <= rating ? theme.colors.warning : theme.colors.border }]}>
             ★
           </Text>
         </TouchableOpacity>
@@ -54,18 +55,18 @@ const FeedbackScreen = ({ route, navigation }) => {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
-      <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}>
-        <Text style={[styles.title, { color: theme.text }]}>Event Feedback</Text>
-        <Text style={[styles.eventName, { color: theme.textSecondary }]}>{event.name}</Text>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.card}>
+        <Text style={styles.title}>Event Feedback</Text>
+        <Text style={styles.eventName}>{event.name}</Text>
 
         <View style={styles.ratingSection}>
-          <Text style={[styles.sectionTitle, { color: theme.text }]}>How was the event?</Text>
+          <Text style={styles.sectionTitle}>How was the event?</Text>
           <View style={styles.starsContainer}>
             {renderStars()}
           </View>
           {rating > 0 && (
-            <Text style={[styles.ratingText, { color: theme.textSecondary }]}>
+            <Text style={styles.ratingText}>
               {rating === 1 && 'Poor'}
               {rating === 2 && 'Fair'}
               {rating === 3 && 'Good'}
@@ -76,17 +77,13 @@ const FeedbackScreen = ({ route, navigation }) => {
         </View>
 
         <View style={styles.commentSection}>
-          <Text style={[styles.sectionTitle, { color: theme.text }]}>
+          <Text style={styles.sectionTitle}>
             Additional Comments (Optional)
           </Text>
           <TextInput
-            style={[styles.commentInput, { 
-              backgroundColor: theme.surface, 
-              color: theme.text,
-              borderColor: theme.border 
-            }]}
+            style={styles.commentInput}
             placeholder="Share your thoughts about the event..."
-            placeholderTextColor={theme.textSecondary}
+            placeholderTextColor={theme.colors.textSecondary}
             value={comment}
             onChangeText={setComment}
             multiline
@@ -98,7 +95,7 @@ const FeedbackScreen = ({ route, navigation }) => {
         <TouchableOpacity
           style={[
             styles.submitButton, 
-            { backgroundColor: theme.primary },
+            { backgroundColor: theme.colors.primary },
             submitting && { opacity: 0.6 }
           ]}
           onPress={handleSubmit}
@@ -113,70 +110,80 @@ const FeedbackScreen = ({ route, navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createThemedStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    padding: theme.spacing.m,
+    backgroundColor: theme.colors.background,
   },
   card: {
-    padding: 20,
-    borderRadius: 12,
+    padding: theme.spacing.l,
+    borderRadius: theme.radii.l,
     borderWidth: 1,
+    backgroundColor: theme.colors.card,
+    borderColor: theme.colors.border,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: theme.typography.sizes.h2,
+    fontWeight: theme.typography.weights.bold,
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: theme.spacing.s,
+    color: theme.colors.text,
   },
   eventName: {
-    fontSize: 16,
+    fontSize: theme.typography.sizes.body,
     textAlign: 'center',
-    marginBottom: 32,
+    marginBottom: theme.spacing.xl,
+    color: theme.colors.textSecondary,
   },
   ratingSection: {
-    marginBottom: 32,
+    marginBottom: theme.spacing.xl,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 16,
+    fontSize: theme.typography.sizes.h3,
+    fontWeight: theme.typography.weights.medium,
+    marginBottom: theme.spacing.m,
+    color: theme.colors.text,
   },
   starsContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: 12,
+    marginBottom: theme.spacing.m,
   },
   starButton: {
-    padding: 4,
+    padding: theme.spacing.xs,
   },
   star: {
     fontSize: 40,
   },
   ratingText: {
-    fontSize: 16,
+    fontSize: theme.typography.sizes.body,
     textAlign: 'center',
     fontStyle: 'italic',
+    color: theme.colors.textSecondary,
   },
   commentSection: {
-    marginBottom: 32,
+    marginBottom: theme.spacing.xl,
   },
   commentInput: {
     borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    minHeight: 100,
+    borderRadius: theme.radii.m,
+    padding: theme.spacing.m,
+    fontSize: theme.typography.sizes.body,
+    minHeight: 120,
+    backgroundColor: theme.colors.surface,
+    color: theme.colors.text,
+    borderColor: theme.colors.border,
   },
   submitButton: {
-    padding: 16,
-    borderRadius: 8,
+    padding: theme.spacing.m,
+    borderRadius: theme.radii.m,
     alignItems: 'center',
   },
   submitButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
+    color: '#FFFFFF',
+    fontSize: theme.typography.sizes.h3,
+    fontWeight: theme.typography.weights.bold,
   },
 });
 

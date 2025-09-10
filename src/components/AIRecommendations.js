@@ -7,6 +7,7 @@ import { mockEvents } from '../data/mockEvents';
 
 const AIRecommendations = ({ navigation }) => {
   const { theme } = useTheme();
+  const styles = createThemedStyles(theme);
   const [recommendedEvents, setRecommendedEvents] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -33,8 +34,8 @@ const AIRecommendations = ({ navigation }) => {
   if (loading) {
     return (
       <View style={styles.container}>
-        <Text style={[styles.title, { color: theme.text }]}>🤖 AI Recommendations</Text>
-        <Text style={[styles.loadingText, { color: theme.textSecondary }]}>
+        <Text style={styles.title}>🤖 AI Recommendations</Text>
+        <Text style={styles.loadingText}>
           Analyzing your preferences...
         </Text>
       </View>
@@ -44,8 +45,8 @@ const AIRecommendations = ({ navigation }) => {
   if (recommendedEvents.length === 0) {
     return (
       <View style={styles.container}>
-        <Text style={[styles.title, { color: theme.text }]}>🤖 AI Recommendations</Text>
-        <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
+        <Text style={styles.title}>🤖 AI Recommendations</Text>
+        <Text style={styles.emptyText}>
           Register for events to get personalized recommendations!
         </Text>
       </View>
@@ -63,7 +64,7 @@ const AIRecommendations = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.title, { color: theme.text }]}>🤖 Recommended for You</Text>
+      <Text style={styles.title}>🤖 Recommended for You</Text>
       <FlatList 
         data={recommendedEvents}
         renderItem={renderRecommendedEvent}
@@ -76,29 +77,32 @@ const AIRecommendations = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createThemedStyles = (theme) => StyleSheet.create({
   container: {
-    marginVertical: 16,
+    marginVertical: theme.spacing.m,
   },
   title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginHorizontal: 16,
-    marginBottom: 12,
+    fontSize: theme.typography.sizes.h3,
+    fontWeight: theme.typography.weights.bold,
+    marginHorizontal: theme.spacing.m,
+    marginBottom: theme.spacing.m,
+    color: theme.colors.text,
   },
   loadingText: {
-    fontSize: 16,
+    fontSize: theme.typography.sizes.body,
     textAlign: 'center',
-    marginTop: 20,
+    marginTop: theme.spacing.m,
+    color: theme.colors.textSecondary,
   },
   emptyText: {
-    fontSize: 16,
+    fontSize: theme.typography.sizes.body,
     textAlign: 'center',
-    marginTop: 20,
-    marginHorizontal: 32,
+    marginTop: theme.spacing.m,
+    marginHorizontal: theme.spacing.xl,
+    color: theme.colors.textSecondary,
   },
   scrollContent: {
-    paddingHorizontal: 8,
+    paddingHorizontal: theme.spacing.s,
   },
   cardContainer: {
     width: 300,

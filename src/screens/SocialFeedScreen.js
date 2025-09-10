@@ -7,6 +7,7 @@ import { mockComments } from '../data/mockEvents';
 
 const SocialFeedScreen = ({ navigation }) => {
   const { theme } = useTheme();
+  const styles = createThemedStyles(theme);
   const { user } = useAuth();
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
@@ -74,34 +75,34 @@ const SocialFeedScreen = ({ navigation }) => {
   };
 
   const renderComment = ({ item }) => (
-    <View style={[styles.commentCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
+    <View style={styles.commentCard}>
       <View style={styles.commentHeader}>
-        <Text style={[styles.userName, { color: theme.text }]}>{item.userName}</Text>
-        <Text style={[styles.timeAgo, { color: theme.textSecondary }]}>
+        <Text style={styles.userName}>{item.userName}</Text>
+        <Text style={styles.timeAgo}>
           {formatTimeAgo(item.timestamp)}
         </Text>
       </View>
       
-      <Text style={[styles.commentText, { color: theme.text }]}>{item.text}</Text>
+      <Text style={styles.commentText}>{item.text}</Text>
       
       <View style={styles.reactionsContainer}>
         <TouchableOpacity style={styles.reactionButton}>
           <Text style={styles.reactionIcon}>👍</Text>
-          <Text style={[styles.reactionCount, { color: theme.textSecondary }]}>
+          <Text style={styles.reactionCount}>
             {item.reactions?.like || 0}
           </Text>
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.reactionButton}>
           <Text style={styles.reactionIcon}>❤️</Text>
-          <Text style={[styles.reactionCount, { color: theme.textSecondary }]}>
+          <Text style={styles.reactionCount}>
             {item.reactions?.love || 0}
           </Text>
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.reactionButton}>
           <Text style={styles.reactionIcon}>😂</Text>
-          <Text style={[styles.reactionCount, { color: theme.textSecondary }]}>
+          <Text style={styles.reactionCount}>
             {item.reactions?.laugh || 0}
           </Text>
         </TouchableOpacity>
@@ -110,26 +111,22 @@ const SocialFeedScreen = ({ navigation }) => {
   );
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
-      <View style={[styles.header, { backgroundColor: theme.surface, borderBottomColor: theme.border }]}>
-        <Text style={[styles.headerTitle, { color: theme.text }]}>Campus Activity Feed</Text>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Campus Activity Feed</Text>
       </View>
 
-      <View style={[styles.addCommentContainer, { backgroundColor: theme.surface }]}>
+      <View style={styles.addCommentContainer}>
         <TextInput
-          style={[styles.commentInput, { 
-            backgroundColor: theme.background, 
-            color: theme.text,
-            borderColor: theme.border 
-          }]}
+          style={styles.commentInput}
           placeholder="Share something with the campus community..."
-          placeholderTextColor={theme.textSecondary}
+          placeholderTextColor={theme.colors.textSecondary}
           value={newComment}
           onChangeText={setNewComment}
           multiline
         />
         <TouchableOpacity
-          style={[styles.postButton, { backgroundColor: theme.primary }]}
+          style={styles.postButton}
           onPress={handleAddComment}
         >
           <Text style={styles.postButtonText}>Post</Text>
@@ -144,7 +141,7 @@ const SocialFeedScreen = ({ navigation }) => {
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
+            <Text style={styles.emptyText}>
               No comments yet. Be the first to share something!
             </Text>
           </View>
@@ -154,94 +151,110 @@ const SocialFeedScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createThemedStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: theme.colors.background,
   },
   header: {
-    padding: 16,
+    padding: theme.spacing.m,
     borderBottomWidth: 1,
+    backgroundColor: theme.colors.surface,
+    borderBottomColor: theme.colors.border,
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: theme.typography.sizes.h3,
+    fontWeight: theme.typography.weights.bold,
     textAlign: 'center',
+    color: theme.colors.text,
   },
   addCommentContainer: {
-    padding: 16,
+    padding: theme.spacing.m,
     flexDirection: 'row',
     alignItems: 'flex-end',
-    gap: 12,
+    gap: theme.spacing.m,
+    backgroundColor: theme.colors.surface,
   },
   commentInput: {
     flex: 1,
     borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    fontSize: 16,
-    maxHeight: 80,
+    borderRadius: theme.radii.m,
+    paddingHorizontal: theme.spacing.m,
+    paddingVertical: theme.spacing.s,
+    fontSize: theme.typography.sizes.body,
+    maxHeight: 100,
+    backgroundColor: theme.colors.background,
+    color: theme.colors.text,
+    borderColor: theme.colors.border,
   },
   postButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 6,
+    paddingHorizontal: theme.spacing.m,
+    paddingVertical: theme.spacing.s,
+    borderRadius: theme.radii.m,
+    backgroundColor: theme.colors.primary,
   },
   postButtonText: {
-    color: '#fff',
-    fontWeight: '600',
+    color: '#FFFFFF',
+    fontWeight: theme.typography.weights.bold,
   },
   listContent: {
-    padding: 16,
+    padding: theme.spacing.m,
   },
   commentCard: {
-    padding: 16,
-    marginBottom: 12,
-    borderRadius: 8,
+    padding: theme.spacing.m,
+    marginBottom: theme.spacing.m,
+    borderRadius: theme.radii.m,
     borderWidth: 1,
+    backgroundColor: theme.colors.card,
+    borderColor: theme.colors.border,
   },
   commentHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: theme.spacing.s,
   },
   userName: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: theme.typography.sizes.body,
+    fontWeight: theme.typography.weights.bold,
+    color: theme.colors.text,
   },
   timeAgo: {
-    fontSize: 14,
+    fontSize: theme.typography.sizes.caption,
+    color: theme.colors.textSecondary,
   },
   commentText: {
-    fontSize: 16,
+    fontSize: theme.typography.sizes.body,
     lineHeight: 22,
-    marginBottom: 12,
+    marginBottom: theme.spacing.m,
+    color: theme.colors.text,
   },
   reactionsContainer: {
     flexDirection: 'row',
-    gap: 16,
+    gap: theme.spacing.m,
   },
   reactionButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: theme.spacing.xs,
   },
   reactionIcon: {
-    fontSize: 16,
+    fontSize: theme.typography.sizes.body,
   },
   reactionCount: {
-    fontSize: 14,
+    fontSize: theme.typography.sizes.caption,
+    color: theme.colors.textSecondary,
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 40,
+    paddingVertical: theme.spacing.xl,
   },
   emptyText: {
-    fontSize: 16,
+    fontSize: theme.typography.sizes.body,
     textAlign: 'center',
+    color: theme.colors.textSecondary,
   },
 });
 

@@ -6,6 +6,7 @@ import { mockEvents } from '../data/mockEvents';
 
 const EventList = ({ navigation, searchQuery = '', selectedCategory = 'All', sortBy = 'date', headerContent = null }) => {
   const { theme } = useTheme();
+  const styles = createThemedStyles(theme);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -76,8 +77,8 @@ const EventList = ({ navigation, searchQuery = '', selectedCategory = 'All', sor
   );
 
   const renderEmpty = () => (
-    <View style={[styles.emptyContainer, { backgroundColor: theme.background }]}>
-      <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
+    <View style={styles.emptyContainer}>
+      <Text style={styles.emptyText}>
         {searchQuery || selectedCategory !== 'All' 
           ? 'No events found matching your criteria' 
           : 'No events available'}
@@ -87,9 +88,9 @@ const EventList = ({ navigation, searchQuery = '', selectedCategory = 'All', sor
 
   if (loading) {
     return (
-      <View style={[styles.loadingContainer, { backgroundColor: theme.background }]}>
-        <ActivityIndicator size="large" color={theme.primary} />
-        <Text style={[styles.loadingText, { color: theme.textSecondary }]}>
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
+        <Text style={styles.loadingText}>
           Loading events...
         </Text>
       </View>
@@ -99,7 +100,7 @@ const EventList = ({ navigation, searchQuery = '', selectedCategory = 'All', sor
   const filteredEvents = filterAndSortEvents();
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
+    <View style={styles.container}>
       <FlatList
         data={filteredEvents}
         renderItem={renderEvent}
@@ -115,28 +116,33 @@ const EventList = ({ navigation, searchQuery = '', selectedCategory = 'All', sor
   );
 };
 
-const styles = StyleSheet.create({
+const createThemedStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: theme.colors.background,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: theme.colors.background,
   },
   loadingText: {
-    marginTop: 10,
-    fontSize: 16,
+    marginTop: theme.spacing.s,
+    fontSize: theme.typography.sizes.body,
+    color: theme.colors.textSecondary,
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 32,
+    paddingHorizontal: theme.spacing.xl,
+    backgroundColor: theme.colors.background,
   },
   emptyText: {
-    fontSize: 16,
+    fontSize: theme.typography.sizes.body,
     textAlign: 'center',
+    color: theme.colors.textSecondary,
   },
   emptyList: {
     flexGrow: 1,

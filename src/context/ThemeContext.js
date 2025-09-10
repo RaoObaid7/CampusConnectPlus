@@ -11,34 +11,86 @@ export const useTheme = () => {
   return context;
 };
 
+const common = {
+  spacing: {
+    xs: 4,
+    s: 8,
+    m: 16,
+    l: 24,
+    xl: 40,
+  },
+  typography: {
+    fontFamily: 'System', // A generic system font
+    sizes: {
+      h1: 32,
+      h2: 24,
+      h3: 20,
+      body: 16,
+      caption: 12,
+    },
+    weights: {
+      regular: '400',
+      medium: '500',
+      bold: '700',
+    },
+  },
+  radii: {
+    s: 4,
+    m: 8,
+    l: 16,
+  },
+  elevation: {
+    low: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+      elevation: 2,
+    },
+    medium: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.15,
+      shadowRadius: 4,
+      elevation: 4,
+    },
+  },
+};
+
 export const lightTheme = {
-  background: '#ffffff',
-  surface: '#f5f5f5',
-  primary: '#2196F3',
-  secondary: '#FF9800',
-  text: '#000000',
-  textSecondary: '#666666',
-  border: '#e0e0e0',
-  card: '#ffffff',
-  success: '#4CAF50',
-  warning: '#FF9800',
-  error: '#F44336',
-  shadow: '#000000'
+  ...common,
+  colors: {
+    background: '#F0F2F5',
+    surface: '#FFFFFF',
+    primary: '#007AFF',
+    secondary: '#FF9500',
+    text: '#1C1C1E',
+    textSecondary: '#6E6E73',
+    border: '#D1D1D6',
+    card: '#FFFFFF',
+    success: '#34C759',
+    warning: '#FF9500',
+    error: '#FF3B30',
+    shadow: '#000000',
+  },
 };
 
 export const darkTheme = {
-  background: '#121212',
-  surface: '#1e1e1e',
-  primary: '#BB86FC',
-  secondary: '#03DAC6',
-  text: '#ffffff',
-  textSecondary: '#aaaaaa',
-  border: '#333333',
-  card: '#1e1e1e',
-  success: '#4CAF50',
-  warning: '#FF9800',
-  error: '#CF6679',
-  shadow: '#000000'
+  ...common,
+  colors: {
+    background: '#000000',
+    surface: '#1C1C1E',
+    primary: '#0A84FF',
+    secondary: '#FF9F0A',
+    text: '#FFFFFF',
+    textSecondary: '#8E8E93',
+    border: '#38383A',
+    card: '#1C1C1E',
+    success: '#30D158',
+    warning: '#FF9F0A',
+    error: '#FF453A',
+    shadow: '#000000',
+  },
 };
 
 export const ThemeProvider = ({ children }) => {
@@ -52,6 +104,8 @@ export const ThemeProvider = ({ children }) => {
   useEffect(() => {
     setCurrentTheme(isDarkMode ? darkTheme : lightTheme);
   }, [isDarkMode]);
+
+  const theme = isDarkMode ? darkTheme : lightTheme;
 
   const loadThemePreference = async () => {
     try {
@@ -76,7 +130,7 @@ export const ThemeProvider = ({ children }) => {
 
   const value = {
     isDarkMode,
-    theme: currentTheme,
+    theme,
     toggleTheme
   };
 

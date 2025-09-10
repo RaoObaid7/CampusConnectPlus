@@ -15,6 +15,7 @@ import { useAuth } from '../context/AuthContext';
 
 const LoginScreen = ({ navigation }) => {
   const { theme } = useTheme();
+  const styles = createThemedStyles(theme);
   const { login, validateUniversityEmail } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -126,7 +127,7 @@ const LoginScreen = ({ navigation }) => {
   const renderErrorMessage = (error) => {
     if (!error) return null;
     return (
-      <Text style={[styles.errorText, { color: theme.error || '#e74c3c' }]}>
+      <Text style={styles.errorText}>
         ⚠️ {error}
       </Text>
     );
@@ -135,8 +136,8 @@ const LoginScreen = ({ navigation }) => {
   const renderSuccessMessage = () => {
     if (!successMessage) return null;
     return (
-      <View style={[styles.successContainer, { backgroundColor: theme.success || '#2ecc71', opacity: 0.1 }]}>
-        <Text style={[styles.successText, { color: theme.success || '#2ecc71' }]}>
+      <View style={styles.successContainer}>
+        <Text style={styles.successText}>
           ✅ {successMessage}
         </Text>
       </View>
@@ -144,20 +145,20 @@ const LoginScreen = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+    <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={[styles.appName, { color: theme.primary }]}>CampusConnect+</Text>
-          <Text style={[styles.tagline, { color: theme.textSecondary }]}>
+          <Text style={styles.appName}>CampusConnect+</Text>
+          <Text style={styles.tagline}>
             Connect with your campus community
           </Text>
         </View>
 
         {/* Login Form */}
-        <View style={[styles.formContainer, { backgroundColor: theme.card }]}>
-          <Text style={[styles.formTitle, { color: theme.text }]}>Welcome Back!</Text>
-          <Text style={[styles.formSubtitle, { color: theme.textSecondary }]}>
+        <View style={styles.formContainer}>
+          <Text style={styles.formTitle}>Welcome Back!</Text>
+          <Text style={styles.formSubtitle}>
             Sign in with your university email
           </Text>
 
@@ -169,16 +170,14 @@ const LoginScreen = ({ navigation }) => {
 
           {/* Email Input */}
           <View style={styles.inputGroup}>
-            <Text style={[styles.inputLabel, { color: theme.text }]}>University Email</Text>
+            <Text style={styles.inputLabel}>University Email</Text>
             <TextInput
-              style={[styles.input, { 
-                backgroundColor: theme.surface, 
-                color: theme.text,
-                borderColor: errors.email ? (theme.error || '#e74c3c') : theme.border,
-                borderWidth: errors.email ? 2 : 1
+              style={[styles.input, {
+                borderColor: errors.email ? theme.colors.error : theme.colors.border,
+                borderWidth: errors.email ? 2 : 1,
               }]}
               placeholder="name.id@iqra.edu.pk"
-              placeholderTextColor={theme.textSecondary}
+              placeholderTextColor={theme.colors.textSecondary}
               value={email}
               onChangeText={handleEmailChange}
               onBlur={() => setEmailTouched(true)}
@@ -191,18 +190,16 @@ const LoginScreen = ({ navigation }) => {
 
           {/* Password Input */}
           <View style={styles.inputGroup}>
-            <Text style={[styles.inputLabel, { color: theme.text }]}>Password</Text>
+            <Text style={styles.inputLabel}>Password</Text>
             <View style={styles.passwordContainer}>
               <TextInput
-                style={[styles.input, { 
-                  backgroundColor: theme.surface, 
-                  color: theme.text,
-                  borderColor: errors.password ? (theme.error || '#e74c3c') : theme.border,
+                style={[styles.input, {
+                  borderColor: errors.password ? theme.colors.error : theme.colors.border,
                   borderWidth: errors.password ? 2 : 1,
-                  paddingRight: 50
+                  paddingRight: 50,
                 }]}
                 placeholder="Enter your password"
-                placeholderTextColor={theme.textSecondary}
+                placeholderTextColor={theme.colors.textSecondary}
                 value={password}
                 onChangeText={handlePasswordChange}
                 onBlur={() => setPasswordTouched(true)}
@@ -212,7 +209,7 @@ const LoginScreen = ({ navigation }) => {
                 style={styles.eyeButton}
                 onPress={() => setShowPassword(!showPassword)}
               >
-                <Text style={[styles.eyeIcon, { color: theme.textSecondary }]}>
+                <Text style={[styles.eyeIcon, { color: theme.colors.textSecondary }]}>
                   {showPassword ? '🙈' : '👁️'}
                 </Text>
               </TouchableOpacity>
@@ -222,7 +219,7 @@ const LoginScreen = ({ navigation }) => {
 
           {/* Forgot Password */}
           <TouchableOpacity onPress={handleForgotPassword}>
-            <Text style={[styles.forgotPassword, { color: theme.primary }]}>
+            <Text style={styles.forgotPassword}>
               Forgot Password?
             </Text>
           </TouchableOpacity>
@@ -230,15 +227,15 @@ const LoginScreen = ({ navigation }) => {
           {/* Login Button */}
           <TouchableOpacity
             style={[styles.loginButton, { 
-              backgroundColor: theme.primary,
-              opacity: loading ? 0.7 : 1 
+              backgroundColor: theme.colors.primary,
+              opacity: loading ? 0.7 : 1,
             }]}
             onPress={handleLogin}
             disabled={loading}
           >
             {loading ? (
               <View style={styles.loadingContainer}>
-                <ActivityIndicator color="#fff" size="small" />
+                <ActivityIndicator color="#FFFFFF" size="small" />
                 <Text style={[styles.loginButtonText, { marginLeft: 10 }]}>Signing In...</Text>
               </View>
             ) : (
@@ -248,11 +245,11 @@ const LoginScreen = ({ navigation }) => {
 
           {/* Sign Up Link */}
           <View style={styles.signupContainer}>
-            <Text style={[styles.signupText, { color: theme.textSecondary }]}>
+            <Text style={styles.signupText}>
               Don't have an account?{' '}
-            </Text>
+            </.Text>
             <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
-              <Text style={[styles.signupLink, { color: theme.primary }]}>
+              <Text style={styles.signupLink}>
                 Sign Up
               </Text>
             </TouchableOpacity>
@@ -260,19 +257,19 @@ const LoginScreen = ({ navigation }) => {
         </View>
 
         {/* University Email Info */}
-        <View style={[styles.infoContainer, { backgroundColor: theme.surface }]}>
-          <Text style={[styles.infoTitle, { color: theme.text }]}>📧 University Email Required</Text>
-          <Text style={[styles.infoText, { color: theme.textSecondary }]}>
+        <View style={styles.infoContainer}>
+          <Text style={styles.infoTitle}>📧 University Email Required</Text>
+          <Text style={styles.infoText}>
             Only students with valid university email addresses can access CampusConnect+.
             Accepted domains include: @iqra.edu.pk, @comsats.edu.pk, @pu.edu.pk, @lums.edu.pk, @nust.edu.pk, and other verified university domains.
             This ensures a safe and secure campus community.
           </Text>
           
           <View style={styles.helpSection}>
-            <Text style={[styles.helpTitle, { color: theme.text }]}>Need Help?</Text>
-            <Text style={[styles.helpText, { color: theme.textSecondary }]}>• Forgot your password? Click "Forgot Password?" above</Text>
-            <Text style={[styles.helpText, { color: theme.textSecondary }]}>• Don't have an account? Click "Sign Up" above</Text>
-            <Text style={[styles.helpText, { color: theme.textSecondary }]}>• Having trouble? Contact your university IT support</Text>
+            <Text style={styles.helpTitle}>Need Help?</Text>
+            <Text style={styles.helpText}>• Forgot your password? Click "Forgot Password?" above</Text>
+            <Text style={styles.helpText}>• Don't have an account? Click "Sign Up" above</Text>
+            <Text style={styles.helpText}>• Having trouble? Contact your university IT support</Text>
           </View>
         </View>
       </ScrollView>
@@ -280,91 +277,97 @@ const LoginScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createThemedStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: theme.colors.background,
   },
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
-    padding: 20,
+    padding: theme.spacing.l,
   },
   header: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: theme.spacing.xl,
   },
   appName: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    marginBottom: 8,
+    fontSize: theme.typography.sizes.h1,
+    fontWeight: theme.typography.weights.bold,
+    color: theme.colors.primary,
+    marginBottom: theme.spacing.s,
   },
   tagline: {
-    fontSize: 16,
+    fontSize: theme.typography.sizes.body,
+    color: theme.colors.textSecondary,
     textAlign: 'center',
   },
   formContainer: {
-    padding: 24,
-    borderRadius: 16,
-    marginBottom: 24,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    padding: theme.spacing.l,
+    borderRadius: theme.radii.l,
+    backgroundColor: theme.colors.surface,
+    marginBottom: theme.spacing.l,
+    ...theme.elevation.medium,
   },
   formTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: theme.typography.sizes.h2,
+    fontWeight: theme.typography.weights.bold,
     textAlign: 'center',
-    marginBottom: 8,
+    color: theme.colors.text,
+    marginBottom: theme.spacing.s,
   },
   formSubtitle: {
-    fontSize: 16,
+    fontSize: theme.typography.sizes.body,
     textAlign: 'center',
-    marginBottom: 32,
+    color: theme.colors.textSecondary,
+    marginBottom: theme.spacing.l,
   },
   inputGroup: {
-    marginBottom: 20,
+    marginBottom: theme.spacing.m,
   },
   inputLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 8,
+    fontSize: theme.typography.sizes.body,
+    fontWeight: theme.typography.weights.medium,
+    color: theme.colors.text,
+    marginBottom: theme.spacing.s,
   },
   input: {
     borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16,
+    borderRadius: theme.radii.m,
+    paddingHorizontal: theme.spacing.m,
+    paddingVertical: theme.spacing.s,
+    fontSize: theme.typography.sizes.body,
+    backgroundColor: theme.colors.background,
+    color: theme.colors.text,
   },
   passwordContainer: {
     position: 'relative',
   },
   eyeButton: {
     position: 'absolute',
-    right: 16,
-    top: 12,
-    padding: 4,
+    right: theme.spacing.m,
+    top: theme.spacing.s,
+    padding: theme.spacing.xs,
   },
   eyeIcon: {
     fontSize: 20,
   },
   forgotPassword: {
-    fontSize: 16,
+    fontSize: theme.typography.sizes.body,
+    color: theme.colors.primary,
     textAlign: 'right',
-    marginBottom: 24,
+    marginBottom: theme.spacing.l,
   },
   loginButton: {
-    padding: 16,
-    borderRadius: 8,
+    padding: theme.spacing.m,
+    borderRadius: theme.radii.m,
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: theme.spacing.l,
   },
   loginButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
+    color: '#FFFFFF',
+    fontSize: theme.typography.sizes.h3,
+    fontWeight: theme.typography.weights.bold,
   },
   signupContainer: {
     flexDirection: 'row',
@@ -372,42 +375,50 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   signupText: {
-    fontSize: 16,
+    fontSize: theme.typography.sizes.body,
+    color: theme.colors.textSecondary,
   },
   signupLink: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: theme.typography.sizes.body,
+    fontWeight: theme.typography.weights.bold,
+    color: theme.colors.primary,
   },
   infoContainer: {
-    padding: 16,
-    borderRadius: 12,
-    marginTop: 16,
+    padding: theme.spacing.m,
+    borderRadius: theme.radii.m,
+    backgroundColor: theme.colors.surface,
+    marginTop: theme.spacing.m,
   },
   infoTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 8,
+    fontSize: theme.typography.sizes.body,
+    fontWeight: theme.typography.weights.bold,
+    color: theme.colors.text,
+    marginBottom: theme.spacing.s,
   },
   infoText: {
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: theme.typography.sizes.caption,
+    color: theme.colors.textSecondary,
+    lineHeight: 18,
   },
   errorText: {
-    fontSize: 14,
-    marginTop: 5,
-    marginBottom: 10,
+    fontSize: theme.typography.sizes.caption,
+    color: theme.colors.error,
+    marginTop: theme.spacing.xs,
+    marginBottom: theme.spacing.s,
   },
   successContainer: {
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 16,
+    padding: theme.spacing.s,
+    borderRadius: theme.radii.m,
+    marginBottom: theme.spacing.m,
     borderWidth: 1,
-    borderColor: '#2ecc71',
+    borderColor: theme.colors.success,
+    backgroundColor: `${theme.colors.success}1A`, // Add opacity
   },
   successText: {
-    fontSize: 14,
+    fontSize: theme.typography.sizes.body,
+    color: theme.colors.success,
     textAlign: 'center',
-    fontWeight: '600',
+    fontWeight: theme.typography.weights.medium,
   },
   loadingContainer: {
     flexDirection: 'row',
@@ -415,20 +426,22 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   helpSection: {
-    marginTop: 16,
-    paddingTop: 16,
+    marginTop: theme.spacing.m,
+    paddingTop: theme.spacing.m,
     borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
+    borderTopColor: theme.colors.border,
   },
   helpTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 8,
+    fontSize: theme.typography.sizes.body,
+    fontWeight: theme.typography.weights.bold,
+    color: theme.colors.text,
+    marginBottom: theme.spacing.s,
   },
   helpText: {
-    fontSize: 13,
+    fontSize: theme.typography.sizes.caption,
+    color: theme.colors.textSecondary,
     lineHeight: 18,
-    marginBottom: 4,
+    marginBottom: theme.spacing.xs,
   },
 });
 

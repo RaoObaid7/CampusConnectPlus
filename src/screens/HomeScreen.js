@@ -7,12 +7,13 @@ import AIRecommendations from '../components/AIRecommendations';
 
 const HomeScreen = ({ navigation }) => {
   const { theme } = useTheme();
+  const styles = createThemedStyles(theme);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [sortBy, setSortBy] = useState('date');
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+    <SafeAreaView style={styles.container}>
       <SearchFilterBar
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
@@ -32,11 +33,11 @@ const HomeScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createThemedStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: theme.colors.background,
   },
-  
 });
 
 export default HomeScreen;

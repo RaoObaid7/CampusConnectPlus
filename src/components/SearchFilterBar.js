@@ -13,6 +13,7 @@ const SearchFilterBar = ({
   setSortBy 
 }) => {
   const { theme } = useTheme();
+  const styles = createThemedStyles(theme);
 
   // Prepare options for dropdowns
   const categoryOptions = categories.map(category => ({
@@ -28,15 +29,11 @@ const SearchFilterBar = ({
   ];
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.surface }]}>
+    <View style={styles.container}>
       <TextInput
-        style={[styles.searchInput, { 
-          backgroundColor: theme.background, 
-          color: theme.text,
-          borderColor: theme.border 
-        }]}
+        style={styles.searchInput}
         placeholder="Search events or venues..."
-        placeholderTextColor={theme.textSecondary}
+        placeholderTextColor={theme.colors.textSecondary}
         value={searchQuery}
         onChangeText={setSearchQuery}
       />
@@ -64,22 +61,26 @@ const SearchFilterBar = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createThemedStyles = (theme) => StyleSheet.create({
   container: {
-    padding: 16,
+    padding: theme.spacing.m,
     zIndex: 1000,
+    backgroundColor: theme.colors.surface,
   },
   searchInput: {
     borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 16,
-    marginBottom: 12,
+    borderRadius: theme.radii.m,
+    paddingHorizontal: theme.spacing.m,
+    paddingVertical: theme.spacing.s,
+    fontSize: theme.typography.sizes.body,
+    marginBottom: theme.spacing.m,
+    backgroundColor: theme.colors.background,
+    color: theme.colors.text,
+    borderColor: theme.colors.border,
   },
   filtersRow: {
     flexDirection: 'row',
-    gap: 12,
+    gap: theme.spacing.m,
     justifyContent: 'space-between',
   },
   dropdownContainer: {
