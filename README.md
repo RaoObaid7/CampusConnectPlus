@@ -153,17 +153,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👥 Authors
 
-- **Your Name** - *Initial work* - [YourGitHub](https://github.com/yourusername)
+- **Rao Obaid** - *Initial work* - [YourGitHub](https://github.com/yourusername)
 
-## 🙏 Acknowledgments
-
-- React Native community for excellent documentation
-- Expo team for the amazing development platform
-- University students who inspired this project
-
-## 📞 Support
-
-For support, email your-email@example.com or create an issue in this repository.
 
 ---
 
