@@ -23,26 +23,26 @@ const Background3D = ({
         return [
           theme.accent + '15',
           theme.secondary + '10',
-          theme.backgroundSolid
+          theme.background
         ];
       case 'cool':
         return [
           theme.info + '15',
           theme.primary + '10',
-          theme.backgroundSolid
+          theme.background
         ];
       case 'vibrant':
         return [
           theme.primaryLight + '20',
           theme.secondaryLight + '15',
           theme.accent + '10',
-          theme.backgroundSolid
+          theme.background
         ];
       default:
         return [
           theme.primaryLight + '10',
           theme.secondaryLight + '10',
-          theme.backgroundSolid
+          theme.background
         ];
     }
   };

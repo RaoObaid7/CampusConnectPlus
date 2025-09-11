@@ -1,25 +1,22 @@
 import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  TextInput,
-  TouchableOpacity, 
-  StyleSheet, 
-  SafeAreaView, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
-  Dimensions,
-  ActivityIndicator 
+  Image,
+  Modal,
+  FlatList
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-import Button3D, { GradientButton3D, OutlineButton3D } from '../components/Button3D';
-import Input3D, { FloatingLabelInput3D } from '../components/Input3D';
-import Card3D, { GlassCard3D } from '../components/Card3D';
-import { useScreenSize } from '../components/ResponsiveLayout';
-import { spacing, borderRadius, typography } from '../utils/designSystem';
-
-const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+import { spacing, borderRadius } from '../utils/designSystem';
+import Button from '../components/Button';
+import Input from '../components/Input';
+import Background from '../components/Background';
 
 const DEPARTMENTS = [
   'Computer Science',
@@ -53,8 +50,6 @@ const SignupScreen = ({ navigation }) => {
   });
   
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showDepartments, setShowDepartments] = useState(false);
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
@@ -95,7 +90,7 @@ const SignupScreen = ({ navigation }) => {
           if (!emailRegex.test(value)) {
             newErrors.email = 'Please enter a valid email format';
           } else if (!validateUniversityEmail(value)) {
-            newErrors.email = 'Please use your university email address (e.g., name.ID@iqra.edu.pk)';
+            newErrors.email = 'Please use your university email address';
           } else {
             delete newErrors.email;
           }
@@ -173,7 +168,7 @@ const SignupScreen = ({ navigation }) => {
       if (!emailRegex.test(email)) {
         newErrors.email = 'Please enter a valid email format';
       } else if (!validateUniversityEmail(email)) {
-        newErrors.email = 'Please use your university email address (e.g., name.ID@iqra.edu.pk)';
+        newErrors.email = 'Please use your university email address';
       }
     }
     
@@ -205,454 +200,379 @@ const SignupScreen = ({ navigation }) => {
 
   const handleSignup = async () => {
     if (!validateForm()) return;
-
+    
+    setLoading(true);
+    setSuccessMessage('');
+    
     try {
-      setLoading(true);
-      setErrors({}); // Clear any previous errors
-      
       await signUp(formData);
-      
-      setSuccessMessage('Registration successful! Welcome to CampusConnect+! You are now logged in and will be redirected to your dashboard.');
-      
+      setSuccessMessage('Account created successfully! Please check your email for verification.');
+      // Clear form after successful signup
+      setFormData({
+        fullName: '',
+        email: '',
+        studentId: '',
+        department: '',
+        password: '',
+        confirmPassword: ''
+      });
     } catch (error) {
-      const newErrors = {};
-      
-      // Handle specific error messages
-      if (error.message.includes('email already exists') || error.message.includes('account with this email')) {
-        newErrors.email = 'An account with this email already exists. Please use a different email or try signing in.';
-      } else if (error.message.includes('student ID')) {
-        newErrors.studentId = 'This student ID is already registered. Please check your ID or contact support.';
-      } else if (error.message.includes('university email')) {
-        newErrors.email = 'Please use your official university email address.';
-      } else if (error.message.includes('network') || error.message.includes('connection')) {
-        newErrors.general = 'Network error. Please check your internet connection and try again.';
-      } else {
-        newErrors.general = `Registration failed: ${error.message}. Please check your information and try again.`;
-      }
-      
-      setErrors(newErrors);
+      setErrors({ general: error.message || 'Signup failed. Please try again.' });
     } finally {
       setLoading(false);
     }
   };
 
-  const renderErrorMessage = (error) => {
-    if (!error) return null;
-    return (
-      <Text style={[styles.errorText, { color: theme.error }]}>
-        ⚠️ {error}
-      </Text>
-    );
-  };
-
-  const renderSuccessMessage = () => {
-    if (!successMessage) return null;
-    return (
-      <View style={[styles.successContainer, { backgroundColor: theme.success, opacity: 0.1 }]}>
-        <Text style={[styles.successText, { color: theme.success }]}>
-          ✅ {successMessage}
-        </Text>
-      </View>
-    );
-  };
-
-  const renderDepartmentPicker = () => (
-    <View style={styles.inputGroup}>
-      <Text style={[styles.inputLabel, { color: theme.text }]}>Department</Text>
-      <TouchableOpacity
-        style={[styles.input, { 
-          backgroundColor: theme.surface, 
+  const renderDepartmentSelector = () => (
+    <TouchableOpacity 
+      onPress={() => setShowDepartments(true)}
+      style={[
+        styles.departmentSelector,
+        { 
           borderColor: errors.department ? theme.error : theme.border,
-          borderWidth: errors.department ? 2 : 1,
-          justifyContent: 'space-between',
-          flexDirection: 'row',
-          alignItems: 'center'
-        }]}
-        onPress={() => setShowDepartments(!showDepartments)}
+          backgroundColor: theme.backgroundInput
+        }
+      ]}
+    >
+      <Text 
+        style={[
+          styles.departmentText,
+          { color: formData.department ? theme.text : theme.textPlaceholder }
+        ]}
       >
-        <Text style={[styles.inputText, { 
-          color: formData.department ? theme.text : theme.textSecondary 
-        }]}>
-          {formData.department || 'Select your department'}
-        </Text>
-        <Text style={[styles.arrow, { color: theme.textSecondary }]}>
-          {showDepartments ? '▲' : '▼'}
-        </Text>
-      </TouchableOpacity>
-      
-      {showDepartments && (
-        <View style={[styles.dropdown, { 
-          backgroundColor: theme.card, 
-          borderColor: theme.border 
-        }]}>
-          <ScrollView style={styles.dropdownScroll} nestedScrollEnabled={true}>
-            {DEPARTMENTS.map((dept, index) => (
-              <TouchableOpacity
-                key={index}
-                style={[styles.dropdownItem, { 
-                  backgroundColor: dept === formData.department ? theme.primary : 'transparent',
-                  borderBottomColor: theme.border
-                }]}
-                onPress={() => {
-                  updateFormData('department', dept);
-                  setFieldTouched('department');
-                  validateField('department', dept);
-                  setShowDepartments(false);
-                }}
-              >
-                <Text style={[styles.dropdownItemText, { 
-                  color: dept === formData.department ? '#fff' : theme.text 
-                }]}>
-                  {dept}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
-      )}
-      {errors.department && renderErrorMessage(errors.department)}
-    </View>
+        {formData.department || 'Select your department'}
+      </Text>
+      <Text style={styles.dropdownIcon}>▼</Text>
+    </TouchableOpacity>
   );
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={[styles.appName, { color: theme.primary }]}>CampusConnect+</Text>
-          <Text style={[styles.tagline, { color: theme.textSecondary }]}>
-            Join your campus community
-          </Text>
-        </View>
-
-        {/* Signup Form */}
-        <GlassCard3D style={styles.formContainer}>
-          <Text style={[styles.formTitle, { color: theme.text }]}>Create Account</Text>
-          <Text style={[styles.formSubtitle, { color: theme.textSecondary }]}>
-            Register with your university credentials
-          </Text>
-
-          {/* General Error Message */}
-          {errors.general && renderErrorMessage(errors.general)}
-          
-          {/* Success Message */}
-          {renderSuccessMessage()}
-
-          {/* Full Name */}
-          <FloatingLabelInput3D
-            label="Full Name"
-            placeholder="Enter your full name"
-            value={formData.fullName}
-            onChangeText={(value) => updateFormData('fullName', value)}
-            onBlur={() => setFieldTouched('fullName')}
-            autoCapitalize="words"
-            error={errors.fullName}
-            gradientBorder={true}
-            style={styles.inputContainer}
-            icon={<Text style={styles.inputIcon}>👤</Text>}
-          />
-
-          {/* University Email */}
-          <FloatingLabelInput3D
-            label="University Email"
-            placeholder="name.id@iqra.edu.pk"
-            value={formData.email}
-            onChangeText={(value) => updateFormData('email', value)}
-            onBlur={() => setFieldTouched('email')}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-            error={errors.email}
-            gradientBorder={true}
-            style={styles.inputContainer}
-            icon={<Text style={styles.inputIcon}>📧</Text>}
-          />
-
-          {/* Student ID */}
-          <FloatingLabelInput3D
-            label="Student ID"
-            placeholder="Enter your student ID"
-            value={formData.studentId}
-            onChangeText={(value) => updateFormData('studentId', value)}
-            onBlur={() => setFieldTouched('studentId')}
-            autoCapitalize="characters"
-            error={errors.studentId}
-            gradientBorder={true}
-            style={styles.inputContainer}
-            icon={<Text style={styles.inputIcon}>🎓</Text>}
-          />
-
-          {/* Department Picker */}
-          {renderDepartmentPicker()}
-
-          {/* Password */}
-          <FloatingLabelInput3D
-            label="Password"
-            placeholder="Create a password (min 6 characters)"
-            value={formData.password}
-            onChangeText={(value) => updateFormData('password', value)}
-            onBlur={() => setFieldTouched('password')}
-            secureTextEntry={!showPassword}
-            error={errors.password}
-            gradientBorder={true}
-            style={styles.inputContainer}
-            icon={<Text style={styles.inputIcon}>🔒</Text>}
-            rightIcon={
-              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                <Text style={styles.eyeIcon}>
-                  {showPassword ? '🙈' : '👁️'}
-                </Text>
-              </TouchableOpacity>
-            }
-          />
-
-          {/* Confirm Password */}
-          <FloatingLabelInput3D
-            label="Confirm Password"
-            placeholder="Confirm your password"
-            value={formData.confirmPassword}
-            onChangeText={(value) => updateFormData('confirmPassword', value)}
-            onBlur={() => setFieldTouched('confirmPassword')}
-            secureTextEntry={!showConfirmPassword}
-            error={errors.confirmPassword}
-            gradientBorder={true}
-            style={styles.inputContainer}
-            icon={<Text style={styles.inputIcon}>🔓</Text>}
-            rightIcon={
-              <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
-                <Text style={styles.eyeIcon}>
-                  {showConfirmPassword ? '🙈' : '👁️'}
-                </Text>
-              </TouchableOpacity>
-            }
-          />
-
-          {/* Signup Button */}
-          <GradientButton3D
-            title={loading ? "Creating Account..." : "Create Account 🎆"}
-            onPress={handleSignup}
-            loading={loading}
-            disabled={loading}
-            colors={[theme.primaryLight, theme.primary, theme.primaryDark]}
-            size="large"
-            style={styles.signupButton}
-          />
-
-          {/* Login Link */}
-          <View style={styles.loginContainer}>
-            <Text style={[styles.loginText, { color: theme.textSecondary }]}>
-              Already have an account?{' '}
+    <Background variant="gradient">
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}
+      >
+        <ScrollView 
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.logoContainer}>
+            <Image 
+              source={require('../../assets/icon.png')} 
+              style={styles.logo}
+              resizeMode="contain"
+            />
+            <Text style={[styles.appName, { color: theme.textLight }]}>
+              CampusConnectPlus
             </Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-              <Text style={[styles.loginLink, { color: theme.primary }]}>
-                Sign In
-              </Text>
-            </TouchableOpacity>
           </View>
-        </GlassCard3D>
-
-        {/* Requirements Info */}
-        <View style={[styles.requirementsContainer, { backgroundColor: theme.surface }]}>
-          <Text style={[styles.requirementsTitle, { color: theme.text }]}>
-            🎓 Student Verification Required
-          </Text>
-          <Text style={[styles.requirementsText, { color: theme.textSecondary }]}>
-            • Use your official university email (Accepted domains: @iqra.edu.pk, @comsats.edu.pk, @pu.edu.pk, @lums.edu.pk, @nust.edu.pk, and other verified universities){'\n'}
-            • Provide your valid student ID (minimum 3 characters){'\n'}
-            • Enter your full name (minimum 2 characters){'\n'}
-            • Select your academic department{'\n'}
-            • Create a secure password (minimum 6 characters)
-          </Text>
           
-          <View style={styles.helpSection}>
-            <Text style={[styles.helpTitle, { color: theme.text }]}>Need Help?</Text>
-            <Text style={[styles.helpText, { color: theme.textSecondary }]}>• Already have an account? Click "Sign In" above</Text>
-            <Text style={[styles.helpText, { color: theme.textSecondary }]}>• Invalid university email? Contact your registrar office</Text>
-            <Text style={[styles.helpText, { color: theme.textSecondary }]}>• Forgot your student ID? Check your student portal or ID card</Text>
-            <Text style={[styles.helpText, { color: theme.textSecondary }]}>• Having trouble? Contact your university IT support</Text>
+          <View style={[
+            styles.formContainer, 
+            { backgroundColor: theme.backgroundElevated, ...theme.shadow.md }
+          ]}>
+            <Text style={[styles.title, { color: theme.text }]}>
+              Create Account
+            </Text>
+            
+            <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
+              Join your campus community
+            </Text>
+            
+            {errors.general && (
+              <View style={[styles.errorContainer, { backgroundColor: theme.errorLight }]}>
+                <Text style={[styles.errorText, { color: theme.error }]}>
+                  {errors.general}
+                </Text>
+              </View>
+            )}
+            
+            {successMessage && (
+              <View style={[styles.successContainer, { backgroundColor: theme.successLight }]}>
+                <Text style={[styles.successText, { color: theme.success }]}>
+                  {successMessage}
+                </Text>
+              </View>
+            )}
+            
+            <Input
+              label="Full Name"
+              value={formData.fullName}
+              onChangeText={(text) => updateFormData('fullName', text)}
+              onBlur={() => setFieldTouched('fullName')}
+              placeholder="Enter your full name"
+              autoCapitalize="words"
+              error={errors.fullName}
+            />
+            
+            <Input
+              label="University Email"
+              value={formData.email}
+              onChangeText={(text) => updateFormData('email', text)}
+              onBlur={() => setFieldTouched('email')}
+              placeholder="name.id@university.edu"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              error={errors.email}
+            />
+            
+            <Input
+              label="Student ID"
+              value={formData.studentId}
+              onChangeText={(text) => updateFormData('studentId', text)}
+              onBlur={() => setFieldTouched('studentId')}
+              placeholder="Enter your student ID"
+              autoCapitalize="none"
+              error={errors.studentId}
+            />
+            
+            <View style={styles.inputContainer}>
+              <Text style={[styles.label, { color: theme.textSecondary }]}>
+                Department
+              </Text>
+              {renderDepartmentSelector()}
+              {errors.department && (
+                <Text style={[styles.errorText, { color: theme.error }]}>
+                  {errors.department}
+                </Text>
+              )}
+            </View>
+            
+            <Input
+              label="Password"
+              value={formData.password}
+              onChangeText={(text) => updateFormData('password', text)}
+              onBlur={() => setFieldTouched('password')}
+              placeholder="Create a password"
+              secureTextEntry
+              error={errors.password}
+            />
+            
+            <Input
+              label="Confirm Password"
+              value={formData.confirmPassword}
+              onChangeText={(text) => updateFormData('confirmPassword', text)}
+              onBlur={() => setFieldTouched('confirmPassword')}
+              placeholder="Confirm your password"
+              secureTextEntry
+              error={errors.confirmPassword}
+            />
+            
+            <Button
+              title="Sign Up"
+              onPress={handleSignup}
+              loading={loading}
+              style={styles.signupButton}
+              variant="filled"
+              size="lg"
+            />
+            
+            <View style={styles.loginContainer}>
+              <Text style={[styles.loginText, { color: theme.textSecondary }]}>
+                Already have an account?
+              </Text>
+              <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                <Text style={[styles.loginLink, { color: theme.primary }]}>
+                  Sign In
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+      
+      {/* Department Selection Modal */}
+      <Modal
+        visible={showDepartments}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowDepartments(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[
+            styles.modalContent,
+            { backgroundColor: theme.backgroundElevated, ...theme.shadow.lg }
+          ]}>
+            <View style={styles.modalHeader}>
+              <Text style={[styles.modalTitle, { color: theme.text }]}>
+                Select Department
+              </Text>
+              <TouchableOpacity onPress={() => setShowDepartments(false)}>
+                <Text style={[styles.closeButton, { color: theme.primary }]}>Close</Text>
+              </TouchableOpacity>
+            </View>
+            
+            <FlatList
+              data={DEPARTMENTS}
+              keyExtractor={(item) => item}
+              renderItem={({ item }) => (
+                <TouchableOpacity 
+                  style={[
+                    styles.departmentItem,
+                    formData.department === item && { backgroundColor: theme.primaryLight }
+                  ]}
+                  onPress={() => {
+                    updateFormData('department', item);
+                    setFieldTouched('department');
+                    setShowDepartments(false);
+                  }}
+                >
+                  <Text style={[
+                    styles.departmentItemText,
+                    { color: formData.department === item ? theme.primary : theme.text }
+                  ]}>
+                    {item}
+                  </Text>
+                </TouchableOpacity>
+              )}
+              style={styles.departmentList}
+            />
           </View>
         </View>
-      </ScrollView>
-    </SafeAreaView>
+      </Modal>
+    </Background>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    width: '100%',
   },
   scrollContent: {
     flexGrow: 1,
-    padding: 20,
-  },
-  header: {
+    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 32,
-    marginTop: 20,
+    padding: spacing.lg,
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: spacing.xl,
+  },
+  logo: {
+    width: 80,
+    height: 80,
+    marginBottom: spacing.sm,
   },
   appName: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  tagline: {
-    fontSize: 16,
-    textAlign: 'center',
-  },
-  formContainer: {
-    padding: 24,
-    borderRadius: 16,
-    marginBottom: 24,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  formTitle: {
     fontSize: 24,
     fontWeight: 'bold',
+  },
+  formContainer: {
+    width: '100%',
+    maxWidth: 400,
+    borderRadius: borderRadius.lg,
+    padding: spacing.lg,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: spacing.xs,
     textAlign: 'center',
-    marginBottom: 8,
   },
-  formSubtitle: {
+  subtitle: {
     fontSize: 16,
+    marginBottom: spacing.lg,
     textAlign: 'center',
-    marginBottom: 24,
   },
-  inputGroup: {
-    marginBottom: 20,
+  errorContainer: {
+    padding: spacing.sm,
+    borderRadius: borderRadius.md,
+    marginBottom: spacing.md,
   },
-  inputLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 8,
+  errorText: {
+    fontSize: 14,
   },
-  input: {
+  successContainer: {
+    padding: spacing.sm,
+    borderRadius: borderRadius.md,
+    marginBottom: spacing.md,
+  },
+  successText: {
+    fontSize: 14,
+  },
+  inputContainer: {
+    width: '100%',
+    marginBottom: spacing.md,
+  },
+  label: {
+    marginBottom: spacing.xs,
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  departmentSelector: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    borderRadius: borderRadius.md,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm,
+    height: 48,
+  },
+  departmentText: {
     fontSize: 16,
   },
-  inputText: {
-    fontSize: 16,
-  },
-  arrow: {
-    fontSize: 16,
-  },
-  passwordContainer: {
-    position: 'relative',
-  },
-  eyeButton: {
-    position: 'absolute',
-    right: 16,
-    top: 12,
-    padding: 4,
-  },
-  eyeIcon: {
-    fontSize: 20,
-  },
-  dropdown: {
-    borderWidth: 1,
-    borderRadius: 8,
-    marginTop: 4,
-    maxHeight: 200,
-  },
-  dropdownScroll: {
-    maxHeight: 200,
-  },
-  dropdownItem: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-  },
-  dropdownItemText: {
-    fontSize: 16,
+  dropdownIcon: {
+    fontSize: 12,
+    opacity: 0.5,
   },
   signupButton: {
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 8,
-    marginBottom: 24,
-  },
-  signupButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
+    width: '100%',
+    marginTop: spacing.md,
   },
   loginContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    alignItems: 'center',
+    marginTop: spacing.lg,
   },
   loginText: {
-    fontSize: 16,
+    fontSize: 14,
+    marginRight: spacing.xs,
   },
   loginLink: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  requirementsContainer: {
-    padding: 16,
-    borderRadius: 12,
-  },
-  requirementsTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 12,
-  },
-  requirementsText: {
     fontSize: 14,
-    lineHeight: 20,
-  },
-  errorText: {
-    fontSize: 14,
-    marginTop: 5,
-    marginBottom: 10,
-  },
-  successContainer: {
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#4CAF50',
-  },
-  successText: {
-    fontSize: 14,
-    textAlign: 'center',
     fontWeight: '600',
   },
-  loadingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  modalOverlay: {
+    flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: spacing.lg,
   },
-  helpSection: {
-    marginTop: 16,
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
+  modalContent: {
+    width: '100%',
+    maxWidth: 400,
+    borderRadius: borderRadius.lg,
+    maxHeight: '80%',
   },
-  helpTitle: {
-    fontSize: 16,
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  modalTitle: {
+    fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 8,
   },
-  helpText: {
-    fontSize: 13,
-    lineHeight: 18,
-    marginBottom: 4,
+  closeButton: {
+    fontSize: 16,
+    fontWeight: '600',
   },
-  inputContainer: {
-    marginBottom: spacing.sm,
+  departmentList: {
+    maxHeight: 300,
   },
-  inputIcon: {
-    fontSize: 18,
+  departmentItem: {
+    padding: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.05)',
   },
-  eyeIcon: {
-    fontSize: 18,
+  departmentItemText: {
+    fontSize: 16,
   },
 });
 

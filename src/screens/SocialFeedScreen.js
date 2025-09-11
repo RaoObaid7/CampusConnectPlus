@@ -1,67 +1,114 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TextInput, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
+  import React, { useState, useEffect, useCallback } from 'react';
+import { 
+  View, Text, FlatList, ActivityIndicator, 
+  RefreshControl, Share, TouchableOpacity, StyleSheet, SafeAreaView 
+} from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-import { getComments, saveComment } from '../utils/storage';
-import { mockComments } from '../data/mockEvents';
+import { getComments, saveComment, updateReaction } from '../utils/storage';
+import Background from '../components/Background';
+import Card from '../components/Card';
+import Button from '../components/Button';
+import Input from '../components/Input';
+import DropdownMenu from '../components/DropdownMenu';
+import { spacing, borderRadius, typography } from '../utils/designSystem';
 
 const SocialFeedScreen = ({ navigation }) => {
   const { theme } = useTheme();
   const { user } = useAuth();
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [sortBy, setSortBy] = useState('newest');
+  const [filterBy, setFilterBy] = useState('all');
+
+  // Sort options
+  const sortOptions = [
+    { label: 'Newest First', value: 'newest' },
+    { label: 'Most Liked', value: 'popular' },
+    { label: 'My Posts', value: 'mine' }
+  ];
 
   useEffect(() => {
     loadComments();
-  }, []);
+  }, [sortBy, filterBy]);
 
   const loadComments = async () => {
+    setIsLoading(true);
     try {
-      const storedComments = await getComments();
-      // Combine stored comments with mock comments
-      const allComments = [];
-      
-      // Add mock comments
-      Object.keys(mockComments).forEach(eventId => {
-        mockComments[eventId].forEach(comment => {
-          allComments.push({
-            ...comment,
-            eventId
-          });
-        });
+      let storedComments = await getComments();
+      let allComments = Object.entries(storedComments).flatMap(([eventId, comments]) =>
+        comments.map(comment => ({ ...comment, eventId }))
+      );
+
+      // Apply filters
+      if (filterBy === 'mine') {
+        allComments = allComments.filter(comment => comment.userId === user.id);
+      }
+
+      // Apply sorting
+      allComments.sort((a, b) => {
+        switch (sortBy) {
+          case 'popular':
+            const likesA = Array.isArray(a.reactions?.likes) ? a.reactions.likes.length : 0;
+            const likesB = Array.isArray(b.reactions?.likes) ? b.reactions.likes.length : 0;
+            return likesB - likesA;
+          case 'newest':
+          default:
+            return new Date(b.timestamp) - new Date(a.timestamp);
+        }
       });
-      
-      // Add stored comments
-      Object.keys(storedComments).forEach(eventId => {
-        storedComments[eventId].forEach(comment => {
-          allComments.push({
-            ...comment,
-            eventId
-          });
-        });
-      });
-      
-      // Sort by timestamp (newest first)
-      allComments.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
       setComments(allComments);
     } catch (error) {
       console.error('Error loading comments:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleAddComment = async () => {
     if (!newComment.trim()) return;
     
+    setIsLoading(true);
     try {
-      // For demo purposes, add to first event
-      const eventId = '1';
+      const eventId = 'social'; // Generic social feed posts
       await saveComment(eventId, newComment.trim(), user);
       setNewComment('');
-      loadComments(); // Reload comments
+      await loadComments();
     } catch (error) {
       console.error('Error adding comment:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  const handleReaction = async (commentId, reactionType) => {
+    try {
+      await updateReaction(commentId, reactionType, user.id);
+      await loadComments();
+    } catch (error) {
+      console.error('Error updating reaction:', error);
+    }
+  };
+
+  const handleShare = async (comment) => {
+    try {
+      await Share.share({
+        message: `${comment.userName}: ${comment.text}`,
+        title: 'Campus Connect Plus Post'
+      });
+    } catch (error) {
+      console.error('Error sharing:', error);
+    }
+  };
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await loadComments();
+    setRefreshing(false);
+  }, []);
 
   const formatTimeAgo = (timestamp) => {
     const now = new Date();
@@ -74,9 +121,13 @@ const SocialFeedScreen = ({ navigation }) => {
   };
 
   const renderComment = ({ item }) => (
-    <View style={[styles.commentCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
+    <Card variant="elevated" style={styles.commentCard}>
       <View style={styles.commentHeader}>
-        <Text style={[styles.userName, { color: theme.text }]}>{item.userName}</Text>
+        <TouchableOpacity 
+          onPress={() => navigation.navigate('UserProfile', { userId: item.userId })}
+        >
+          <Text style={[styles.userName, { color: theme.text }]}>{item.userName}</Text>
+        </TouchableOpacity>
         <Text style={[styles.timeAgo, { color: theme.textSecondary }]}>
           {formatTimeAgo(item.timestamp)}
         </Text>
@@ -85,162 +136,191 @@ const SocialFeedScreen = ({ navigation }) => {
       <Text style={[styles.commentText, { color: theme.text }]}>{item.text}</Text>
       
       <View style={styles.reactionsContainer}>
-        <TouchableOpacity style={styles.reactionButton}>
+        <TouchableOpacity 
+          style={[
+            styles.reactionButton,
+            Array.isArray(item.reactions?.likes) && 
+            item.reactions.likes.includes(user.id) && 
+            styles.activeReaction
+          ]}
+          onPress={() => handleReaction(item.id, 'like')}
+        >
           <Text style={styles.reactionIcon}>👍</Text>
           <Text style={[styles.reactionCount, { color: theme.textSecondary }]}>
-            {item.reactions?.like || 0}
+            {Array.isArray(item.reactions?.likes) ? item.reactions.likes.length : 0}
           </Text>
         </TouchableOpacity>
         
-        <TouchableOpacity style={styles.reactionButton}>
-          <Text style={styles.reactionIcon}>❤️</Text>
+        <TouchableOpacity 
+          style={styles.reactionButton}
+          onPress={() => handleShare(item)}
+        >
+          <Text style={styles.reactionIcon}>↗️</Text>
           <Text style={[styles.reactionCount, { color: theme.textSecondary }]}>
-            {item.reactions?.love || 0}
-          </Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.reactionButton}>
-          <Text style={styles.reactionIcon}>😂</Text>
-          <Text style={[styles.reactionCount, { color: theme.textSecondary }]}>
-            {item.reactions?.laugh || 0}
+            Share
           </Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </Card>
   );
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
-      <View style={[styles.header, { backgroundColor: theme.surface, borderBottomColor: theme.border }]}>
-        <Text style={[styles.headerTitle, { color: theme.text }]}>Campus Activity Feed</Text>
-      </View>
+    <Background variant="gradient">
+      <SafeAreaView style={styles.container}>
+        <View style={styles.filterContainer}>
+          <DropdownMenu
+            options={sortOptions}
+            value={sortBy}
+            onValueChange={setSortBy}
+            style={styles.dropdown}
+          />
+        </View>
 
-      <View style={[styles.addCommentContainer, { backgroundColor: theme.surface }]}>
-        <TextInput
-          style={[styles.commentInput, { 
-            backgroundColor: theme.background, 
-            color: theme.text,
-            borderColor: theme.border 
-          }]}
-          placeholder="Share something with the campus community..."
-          placeholderTextColor={theme.textSecondary}
-          value={newComment}
-          onChangeText={setNewComment}
-          multiline
+        <Card variant="elevated" style={styles.addCommentContainer}>
+          <Input
+            style={styles.commentInput}
+            placeholder="Share something with the campus community..."
+            placeholderTextColor={theme.textSecondary}
+            value={newComment}
+            onChangeText={setNewComment}
+            multiline
+          />
+          <Button
+            title="Post"
+            variant="gradient"
+            onPress={handleAddComment}
+            style={styles.postButton}
+            disabled={isLoading}
+          />
+        </Card>
+
+        <FlatList
+          data={comments}
+          renderItem={renderComment}
+          keyExtractor={(item) => item.id}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContent}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+          ListEmptyComponent={
+            isLoading ? (
+              <ActivityIndicator size="large" color={theme.primary} />
+            ) : (
+              <Card variant="elevated" style={styles.emptyContainer}>
+                <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
+                  No posts yet. Be the first to share something!
+                </Text>
+              </Card>
+            )
+          }
         />
-        <TouchableOpacity
-          style={[styles.postButton, { backgroundColor: theme.primary }]}
-          onPress={handleAddComment}
-        >
-          <Text style={styles.postButtonText}>Post</Text>
-        </TouchableOpacity>
-      </View>
-
-      <FlatList
-        data={comments}
-        renderItem={renderComment}
-        keyExtractor={(item, index) => `${item.id}-${index}`}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContent}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
-              No comments yet. Be the first to share something!
-            </Text>
-          </View>
-        }
-      />
-    </SafeAreaView>
+      </SafeAreaView>
+    </Background>
   );
 };
 
+// Add these new styles to the existing StyleSheet
+const newStyles = {
+  filterContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: spacing.sm,
+    marginHorizontal: spacing.md,
+  },
+  dropdown: {
+    flex: 1,
+    marginRight: spacing.sm,
+  },
+  activeReaction: {
+    backgroundColor: 'rgba(0, 122, 255, 0.1)',
+  }
+};
+
 const styles = StyleSheet.create({
+  ...StyleSheet.create(newStyles),
   container: {
     flex: 1,
   },
   header: {
-    padding: 16,
-    borderBottomWidth: 1,
+    padding: spacing.md,
+    marginHorizontal: spacing.md,
+    marginTop: spacing.sm,
+    marginBottom: spacing.sm,
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: typography.fontSize.xl,
+    fontWeight: typography.fontWeight.bold,
     textAlign: 'center',
   },
   addCommentContainer: {
-    padding: 16,
+    padding: spacing.md,
+    marginHorizontal: spacing.md,
+    marginBottom: spacing.sm,
     flexDirection: 'row',
     alignItems: 'flex-end',
-    gap: 12,
+    gap: spacing.sm,
   },
   commentInput: {
     flex: 1,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    fontSize: 16,
-    maxHeight: 80,
+    minHeight: 40,
+    maxHeight: 100,
   },
   postButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 6,
-  },
-  postButtonText: {
-    color: '#fff',
-    fontWeight: '600',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: borderRadius.md,
   },
   listContent: {
-    padding: 16,
+    padding: spacing.md,
   },
   commentCard: {
-    padding: 16,
-    marginBottom: 12,
-    borderRadius: 8,
-    borderWidth: 1,
+    marginBottom: spacing.sm,
   },
   commentHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: spacing.xs,
   },
   userName: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: typography.fontSize.md,
+    fontWeight: typography.fontWeight.semibold,
   },
   timeAgo: {
-    fontSize: 14,
+    fontSize: typography.fontSize.sm,
   },
   commentText: {
-    fontSize: 16,
-    lineHeight: 22,
-    marginBottom: 12,
+    fontSize: typography.fontSize.md,
+    lineHeight: typography.fontSize.md * 1.4,
+    marginBottom: spacing.sm,
   },
   reactionsContainer: {
     flexDirection: 'row',
-    gap: 16,
+    gap: spacing.md,
   },
   reactionButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: spacing.xs,
+    padding: spacing.xs,
+    borderRadius: borderRadius.sm,
   },
   reactionIcon: {
-    fontSize: 16,
+    fontSize: typography.fontSize.md,
   },
   reactionCount: {
-    fontSize: 14,
+    fontSize: typography.fontSize.sm,
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 40,
+    paddingVertical: spacing.xl,
+    marginHorizontal: spacing.md,
   },
   emptyText: {
-    fontSize: 16,
+    fontSize: typography.fontSize.md,
     textAlign: 'center',
   },
 });

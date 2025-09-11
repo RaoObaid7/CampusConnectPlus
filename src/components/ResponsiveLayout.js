@@ -148,20 +148,24 @@ export const GridLayout = ({
   gap = spacing.md,
   style = {}
 }) => {
-  const { isMobile, isTablet } = useScreenSize();
+  const { isMobile, isTablet, screenWidth } = useScreenSize();
   
   // Responsive columns
   const responsiveColumns = isMobile ? 1 : isTablet ? Math.min(columns, 2) : columns;
   const itemWidth = (100 / responsiveColumns) - (gap * (responsiveColumns - 1)) / responsiveColumns;
   
   return (
-    <View style={[styles.gridContainer, { gap }, style]}>
+    <View style={[styles.gridContainer, style]}>
       {React.Children.map(children, (child, index) => (
         <View 
           key={index}
           style={[
             styles.gridItem,
-            { width: `${itemWidth}%` }
+            { 
+              width: screenWidth / responsiveColumns - gap,
+              marginRight: (index + 1) % responsiveColumns === 0 ? 0 : gap,
+              marginBottom: gap 
+            }
           ]}
         >
           {child}
@@ -178,8 +182,12 @@ export const StackLayout = ({
   style = {}
 }) => {
   return (
-    <View style={[styles.stackContainer, { gap: stackSpacing }, style]}>
-      {children}
+    <View style={[styles.stackContainer, style]}>
+      {React.Children.map(children, (child, index) => (
+        <View key={index} style={index > 0 ? { marginTop: stackSpacing } : {}}>
+          {child}
+        </View>
+      ))}
     </View>
   );
 };

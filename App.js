@@ -3,10 +3,12 @@ import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { TouchableOpacity, Text, View, ActivityIndicator, StyleSheet } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { spacing, borderRadius, typography } from './src/utils/designSystem';
+import TabBar from './src/components/TabBar';
+import Background from './src/components/Background';
+import Header from './src/components/Header';
 import HomeScreen from './src/screens/HomeScreen';
 import EventDetailsScreen from './src/screens/EventDetailsScreen';
 import SocialFeedScreen from './src/screens/SocialFeedScreen';
@@ -137,25 +139,8 @@ const TabNavigator = () => {
   
   return (
     <Tab.Navigator
+      tabBar={props => <TabBar {...props} />}
       screenOptions={{
-        tabBarStyle: {
-          backgroundColor: theme.surface,
-          borderTopColor: 'transparent',
-          ...theme.shadow.medium,
-          borderRadius: borderRadius.xl,
-          marginHorizontal: spacing.sm,
-          marginBottom: spacing.sm,
-          height: 70,
-          paddingBottom: spacing.sm,
-          paddingTop: spacing.sm,
-        },
-        tabBarActiveTintColor: theme.primary,
-        tabBarInactiveTintColor: theme.textSecondary,
-        tabBarLabelStyle: {
-          fontSize: typography.fontSize.xs,
-          fontWeight: typography.fontWeight.semibold,
-          letterSpacing: 0.3,
-        },
         headerStyle: {
           backgroundColor: theme.surface,
           ...theme.shadow.small,
@@ -175,21 +160,16 @@ const TabNavigator = () => {
           title: 'Campus Events',
           tabBarLabel: 'Events',
           tabBarIcon: ({ focused }) => (
-            <View style={[
-              styles.tabIcon,
-              focused && {
-                backgroundColor: theme.primary + '20',
-                ...theme.shadow.small
-              }
-            ]}>
-              <Text style={[styles.tabIconText, { fontSize: focused ? 22 : 20 }]}>📅</Text>
-            </View>
+            <Text style={{ fontSize: focused ? 22 : 20 }}>📅</Text>
           ),
-          headerRight: () => (
-            <View style={styles.headerButtonContainer}>
-              <ThemeToggleButton />
-              <UserProfileButton />
-            </View>
+          header: ({ navigation, route, options }) => (
+            <Header
+              title="Campus Events"
+              rightComponents={[
+                <ThemeToggleButton key="theme" />,
+                <UserProfileButton key="profile" />
+              ]}
+            />
           ),
         }}
       />
@@ -200,21 +180,16 @@ const TabNavigator = () => {
           title: 'Social Feed',
           tabBarLabel: 'Social',
           tabBarIcon: ({ focused }) => (
-            <View style={[
-              styles.tabIcon,
-              focused && {
-                backgroundColor: theme.primary + '20',
-                ...theme.shadow.small
-              }
-            ]}>
-              <Text style={[styles.tabIconText, { fontSize: focused ? 22 : 20 }]}>💬</Text>
-            </View>
+            <Text style={{ fontSize: focused ? 22 : 20 }}>💬</Text>
           ),
-          headerRight: () => (
-            <View style={styles.headerButtonContainer}>
-              <ThemeToggleButton />
-              <UserProfileButton />
-            </View>
+          header: ({ navigation, route, options }) => (
+            <Header
+              title="Social Feed"
+              rightComponents={[
+                <ThemeToggleButton key="theme" />,
+                <UserProfileButton key="profile" />
+              ]}
+            />
           ),
         }}
       />
@@ -226,22 +201,17 @@ const TabNavigator = () => {
           title: 'Profile & Settings',
           tabBarLabel: 'Profile',
           tabBarIcon: ({ focused }) => (
-            <View style={[
-              styles.tabIcon,
-              focused && {
-                backgroundColor: theme.primary + '20',
-                ...theme.shadow.small
-              }
-            ]}>
-              <Text style={[styles.tabIconText, { fontSize: focused ? 22 : 20 }]}>👤</Text>
-            </View>
+            <Text style={{ fontSize: focused ? 22 : 20 }}>👤</Text>
           ),
-          headerLeft: () => <HomeButton />,
-          headerRight: () => (
-            <View style={styles.headerButtonContainer}>
-              <ThemeToggleButton />
-              <UserProfileButton />
-            </View>
+          header: ({ navigation, route, options }) => (
+            <Header
+              title="Profile & Settings"
+              leftComponent={<HomeButton />}
+              rightComponents={[
+                <ThemeToggleButton key="theme" />,
+                <UserProfileButton key="profile" />
+              ]}
+            />
           ),
         }}
       />
@@ -262,27 +232,25 @@ const AppContent = () => {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <LinearGradient
-          colors={[theme.primaryLight + '20', theme.secondaryLight + '20', theme.backgroundSolid]}
-          style={styles.loadingGradient}
-        />
-        <View style={[
-          styles.loadingContent,
-          {
-            backgroundColor: theme.surface,
-            ...theme.shadow.large
-          }
-        ]}>
-          <ActivityIndicator size="large" color={theme.primary} />
-          <Text style={[
-            styles.loadingText,
-            { color: theme.text }
+      <Background variant="gradient">
+        <View style={styles.loadingContainer}>
+          <View style={[
+            styles.loadingContent,
+            {
+              backgroundColor: theme.surface,
+              ...theme.shadow.large
+            }
           ]}>
-            Loading CampusConnect+... ✨
-          </Text>
+            <ActivityIndicator size="large" color={theme.primary} />
+            <Text style={[
+              styles.loadingText,
+              { color: theme.text }
+            ]}>
+              Loading CampusConnect+... ✨
+            </Text>
+          </View>
         </View>
-      </View>
+      </Background>
     );
   }
 
@@ -312,12 +280,15 @@ const AppContent = () => {
               component={EventDetailsScreen}
               options={{
                 title: 'Event Details',
-                headerLeft: () => <BackButton />,
-                headerRight: () => (
-                  <View style={styles.headerButtonContainer}>
-                    <ThemeToggleButton />
-                    <UserProfileButton />
-                  </View>
+                header: ({ navigation, route, options }) => (
+                  <Header
+                    title="Event Details"
+                    leftComponent={<BackButton />}
+                    rightComponents={[
+                      <ThemeToggleButton key="theme" />,
+                      <UserProfileButton key="profile" />
+                    ]}
+                  />
                 ),
               }}
             />
@@ -326,12 +297,15 @@ const AppContent = () => {
               component={FeedbackScreen}
               options={{
                 title: 'Event Feedback',
-                headerLeft: () => <BackButton />,
-                headerRight: () => (
-                  <View style={styles.headerButtonContainer}>
-                    <ThemeToggleButton />
-                    <UserProfileButton />
-                  </View>
+                header: ({ navigation, route, options }) => (
+                  <Header
+                    title="Event Feedback"
+                    leftComponent={<BackButton />}
+                    rightComponents={[
+                      <ThemeToggleButton key="theme" />,
+                      <UserProfileButton key="profile" />
+                    ]}
+                  />
                 ),
               }}
             />
@@ -348,8 +322,15 @@ const AppContent = () => {
               component={SignupScreen}
               options={{
                 title: 'Create Account',
-                headerLeft: () => <BackButton />,
-                headerRight: () => <ThemeToggleButton />,
+                header: ({ navigation, route, options }) => (
+                  <Header
+                    title="Create Account"
+                    leftComponent={<BackButton />}
+                    rightComponents={[
+                      <ThemeToggleButton key="theme" />
+                    ]}
+                  />
+                ),
               }}
             />
           </>

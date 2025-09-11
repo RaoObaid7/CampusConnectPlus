@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
-import Card3D from './Card3D';
+import Card from './Card';
 import { spacing, borderRadius, typography, transforms3D, animation } from '../utils/designSystem';
 
 const EventCard = ({ event, onPress }) => {
@@ -57,12 +57,11 @@ const EventCard = ({ event, onPress }) => {
 
   return (
     <Animated.View style={{ transform: [{ scale: animatedValue }] }}>
-      <Card3D
+      <Card
         variant="elevated"
-        size="medium"
+        size="md"
         style={[styles.card, { marginHorizontal: spacing.md, marginVertical: spacing.sm }]}
         onPress={onPress}
-        tiltEffect={true}
       >
         <TouchableOpacity 
           activeOpacity={1}
@@ -184,7 +183,7 @@ const EventCard = ({ event, onPress }) => {
             </View>
           </View>
         </TouchableOpacity>
-      </Card3D>
+      </Card>
     </Animated.View>
   );
 };

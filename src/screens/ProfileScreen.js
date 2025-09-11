@@ -11,17 +11,15 @@ import {
   SafeAreaView,
   Animated 
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-import Background3D from '../components/Background3D';
-import Card3D, { GlassCard3D } from '../components/Card3D';
-import Button3D, { GradientButton3D, OutlineButton3D } from '../components/Button3D';
-import Input3D from '../components/Input3D';
+import Background from '../components/Background';
+import Card from '../components/Card';
+import Button from '../components/Button';
+import Input from '../components/Input';
 import { SplitLayout, useScreenSize } from '../components/ResponsiveLayout';
 import { spacing, borderRadius, typography } from '../utils/designSystem';
-import { useFadeAnimation, usePressAnimation } from '../components/Animations3D';
 
 const ProfileScreen = ({ navigation }) => {
   const { theme, isDarkMode, toggleTheme } = useTheme();
@@ -52,8 +50,17 @@ const ProfileScreen = ({ navigation }) => {
     bio: user?.bio || '',
   });
 
-  const { animatedStyle: fadeStyle } = useFadeAnimation();
-  const { animatedStyle: headerPressStyle, animateIn, animateOut } = usePressAnimation(1, 0.95, 150);
+  // Animation values
+  const fadeAnim = React.useRef(new Animated.Value(0)).current;
+  const scaleAnim = React.useRef(new Animated.Value(1)).current;
+  
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }, []);
 
   useEffect(() => {
     loadPreferences();
@@ -110,20 +117,29 @@ const ProfileScreen = ({ navigation }) => {
   };
 
   const renderProfileHeader = () => (
-    <GlassCard3D style={styles.profileHeader}>
-      <LinearGradient
-        colors={[theme.primaryLight + '20', theme.secondaryLight + '15']}
-        style={styles.profileGradient}
-      >
+    <Card variant="elevated" style={styles.profileHeader}>
+      <View style={[styles.profileGradient, { backgroundColor: theme.surfaceVariant }]}>
         <TouchableOpacity
           style={styles.avatarContainer}
-          onPressIn={animateIn}
-          onPressOut={animateOut}
+          onPress={() => {
+            Animated.sequence([
+              Animated.timing(scaleAnim, {
+                toValue: 0.95,
+                duration: 100,
+                useNativeDriver: true,
+              }),
+              Animated.timing(scaleAnim, {
+                toValue: 1,
+                duration: 100,
+                useNativeDriver: true,
+              })
+            ]).start();
+          }}
         >
           <Animated.View style={[
             styles.avatar,
             { backgroundColor: theme.primary },
-            headerPressStyle
+            { transform: [{ scale: scaleAnim }] }
           ]}>
             <Text style={styles.avatarText}>
               {user?.fullName?.charAt(0) || 'U'}
@@ -143,18 +159,19 @@ const ProfileScreen = ({ navigation }) => {
           </Text>
         </View>
         
-        <OutlineButton3D
+        <Button
           title="Edit Profile"
+          variant="outline"
           onPress={() => setIsEditingProfile(true)}
           size="small"
           style={styles.editButton}
         />
-      </LinearGradient>
-    </GlassCard3D>
+      </View>
+    </Card>
   );
 
   const renderSettingsSection = (title, icon, items, sectionIndex) => (
-    <Card3D key={sectionIndex} variant="elevated" style={styles.settingsSection}>
+    <Card key={sectionIndex} variant="elevated" style={styles.settingsSection}>
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionIcon}>{icon}</Text>
         <Text style={[styles.sectionTitle, { color: theme.text }]}>
@@ -187,8 +204,9 @@ const ProfileScreen = ({ navigation }) => {
               style={styles.switch}
             />
           ) : item.type === 'button' ? (
-            <OutlineButton3D
+            <Button
               title={item.buttonTitle}
+              variant="outline"
               onPress={item.onPress}
               size="small"
               style={styles.actionButton}
@@ -196,46 +214,46 @@ const ProfileScreen = ({ navigation }) => {
           ) : null}
         </View>
       ))}
-    </Card3D>
+    </Card>
   );
 
   const renderProfileForm = () => (
-    <Card3D variant="elevated" style={styles.profileForm}>
+    <Card variant="elevated" style={styles.profileForm}>
       <View style={styles.formHeader}>
         <Text style={[styles.formTitle, { color: theme.text }]}>
           Edit Profile 📝
         </Text>
       </View>
       
-      <Input3D
+      <Input
         label="Full Name"
         value={profileData.fullName}
         onChangeText={(text) => setProfileData({...profileData, fullName: text})}
         style={styles.formInput}
       />
       
-      <Input3D
+      <Input
         label="University"
         value={profileData.university}
         onChangeText={(text) => setProfileData({...profileData, university: text})}
         style={styles.formInput}
       />
       
-      <Input3D
+      <Input
         label="Major"
         value={profileData.major}
         onChangeText={(text) => setProfileData({...profileData, major: text})}
         style={styles.formInput}
       />
       
-      <Input3D
+      <Input
         label="Year"
         value={profileData.year}
         onChangeText={(text) => setProfileData({...profileData, year: text})}
         style={styles.formInput}
       />
       
-      <Input3D
+      <Input
         label="Bio"
         value={profileData.bio}
         onChangeText={(text) => setProfileData({...profileData, bio: text})}
@@ -245,19 +263,21 @@ const ProfileScreen = ({ navigation }) => {
       />
       
       <View style={styles.formButtons}>
-        <OutlineButton3D
+        <Button
           title="Cancel"
+          variant="outline"
           onPress={() => setIsEditingProfile(false)}
           style={styles.cancelButton}
         />
-        <GradientButton3D
+        <Button
           title="Save Changes"
+          variant="gradient"
           onPress={handleProfileSave}
-          colors={[theme.success, theme.successGradient?.split(' ')[2] || theme.success]}
+          gradientColors={[theme.success, theme.successLight]}
           style={styles.saveButton}
         />
       </View>
-    </Card3D>
+    </Card>
   );
   
   const renderLogoutConfirmation = () => {
@@ -265,7 +285,7 @@ const ProfileScreen = ({ navigation }) => {
     
     return (
       <View style={styles.modalOverlay}>
-        <GlassCard3D style={styles.confirmationModal}>
+        <Card variant="elevated" style={styles.confirmationModal}>
           <Text style={[styles.confirmationTitle, { color: theme.text }]}>
             Logout Confirmation
           </Text>
@@ -274,21 +294,23 @@ const ProfileScreen = ({ navigation }) => {
           </Text>
           
           <View style={styles.confirmationButtons}>
-            <OutlineButton3D
+            <Button
               title="Cancel"
+              variant="outline"
               onPress={cancelLogout}
               size="medium"
               style={styles.cancelLogoutButton}
             />
-            <GradientButton3D
+            <Button
               title="Logout 🚪"
+              variant="gradient"
               onPress={confirmLogout}
-              colors={[theme.error, '#dc2626']}
+              gradientColors={[theme.error, theme.errorLight || '#dc2626']}
               size="medium"
               style={styles.confirmLogoutButton}
             />
           </View>
-        </GlassCard3D>
+        </Card>
       </View>
     );
   };
@@ -405,6 +427,11 @@ const ProfileScreen = ({ navigation }) => {
     </View>
   );
 
+  const fadeStyle = {
+    opacity: fadeAnim,
+    transform: [{ translateY: fadeAnim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }]
+  };
+
   const rightContent = (
     <ScrollView 
       style={styles.rightPanel}
@@ -421,7 +448,7 @@ const ProfileScreen = ({ navigation }) => {
   );
 
   return (
-    <Background3D variant="cool">
+    <Background variant="gradient">
       <SafeAreaView style={styles.container}>
         <SplitLayout
           leftContent={leftContent}
@@ -433,7 +460,7 @@ const ProfileScreen = ({ navigation }) => {
         />
         {renderLogoutConfirmation()}
       </SafeAreaView>
-    </Background3D>
+    </Background>
   );
 };
 

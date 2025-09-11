@@ -107,10 +107,10 @@ const Card3D = ({
   };
 
   const getCardStyle = () => {
-    if (neumorphic) {
+    if (neumorphic && theme.neomorphism) {
       return {
-        backgroundColor: theme.neomorphism.background,
-        shadowColor: theme.neomorphism.shadow,
+        backgroundColor: theme.neomorphism?.background || theme.surface,
+        shadowColor: theme.neomorphism?.shadow || theme.border,
         shadowOffset: {
           width: pressed ? -4 : 8,
           height: pressed ? -4 : 8,
@@ -123,14 +123,14 @@ const Card3D = ({
       };
     }
 
-    if (glassEffect) {
+    if (glassEffect && theme.glass) {
       return {
-        backgroundColor: theme.glass.background,
+        backgroundColor: theme.glass?.background || 'rgba(255, 255, 255, 0.1)',
         borderWidth: 1,
-        borderColor: theme.glass.border,
+        borderColor: theme.glass?.border || theme.border,
         borderRadius: borderRadius.xl,
         padding: spacing[size === 'small' ? 'sm' : size === 'large' ? 'lg' : 'md'],
-        ...theme.shadow.medium,
+        ...(theme.shadow?.md || {}),
       };
     }
 

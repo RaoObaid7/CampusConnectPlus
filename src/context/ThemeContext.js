@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { elevation } from '../utils/designSystem';
 
 const ThemeContext = createContext();
 
@@ -11,184 +12,150 @@ export const useTheme = () => {
   return context;
 };
 
+// Modern Light Theme
 export const lightTheme = {
-  // Base colors with gradients for 3D effect
-  background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
-  backgroundSolid: '#f8fafc',
-  surface: '#ffffff',
-  surfaceElevated: '#ffffff',
+  // Base colors
+  background: '#FFFFFF',
+  backgroundAlt: '#F7F9FC',
+  surface: '#FFFFFF',
+  surfaceAlt: '#F7F9FC',
   
-  // Enhanced color palette for 3D depth
-  primary: '#667eea',
-  primaryLight: '#818cf8',
-  primaryDark: '#4c51bf',
-  primaryGradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+  // Brand colors
+  primary: '#4361EE',
+  primaryLight: '#4895EF',
+  primaryDark: '#3A0CA3',
   
-  secondary: '#f093fb',
-  secondaryLight: '#fbb6ce',
-  secondaryDark: '#e879f9',
-  secondaryGradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+  secondary: '#F72585',
+  secondaryLight: '#F72585',
+  secondaryDark: '#B5179E',
   
-  accent: '#ffecd2',
-  accentGradient: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+  accent: '#4CC9F0',
+  accentDark: '#4361EE',
   
-  // Text colors with depth
-  text: '#1a202c',
-  textSecondary: '#4a5568',
-  textTertiary: '#718096',
-  textLight: '#ffffff',
+  // Text colors
+  text: '#1E293B',
+  textSecondary: '#64748B',
+  textTertiary: '#94A3B8',
+  textLight: '#FFFFFF',
   
   // UI elements
-  border: '#e2e8f0',
-  borderLight: '#f7fafc',
-  card: '#ffffff',
-  cardShadow: 'rgba(0, 0, 0, 0.1)',
+  border: '#E2E8F0',
+  divider: '#E2E8F0',
   
   // Status colors
-  success: '#48bb78',
-  successGradient: 'linear-gradient(135deg, #48bb78 0%, #38a169 100%)',
-  warning: '#ed8936',
-  warningGradient: 'linear-gradient(135deg, #ed8936 0%, #dd6b20 100%)',
-  error: '#f56565',
-  errorGradient: 'linear-gradient(135deg, #f56565 0%, #e53e3e 100%)',
-  info: '#4299e1',
-  infoGradient: 'linear-gradient(135deg, #4299e1 0%, #3182ce 100%)',
+  success: '#10B981',
+  successDark: '#059669',
+  warning: '#F59E0B',
+  warningDark: '#D97706',
+  error: '#EF4444',
+  errorDark: '#DC2626',
+  info: '#3B82F6',
+  infoDark: '#2563EB',
   
-  // 3D Shadow system
-  shadow: {
-    small: {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 3,
-      elevation: 2,
-    },
-    medium: {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.15,
-      shadowRadius: 8,
-      elevation: 4,
-    },
-    large: {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 8 },
-      shadowOpacity: 0.2,
-      shadowRadius: 16,
-      elevation: 8,
-    },
-    xl: {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 12 },
-      shadowOpacity: 0.25,
-      shadowRadius: 24,
-      elevation: 12,
-    }
+  // Shadow system
+  shadow: elevation,
+  
+  // Additional UI colors
+  backgroundElevated: '#FFFFFF',
+  errorLight: '#FEF2F2',
+  successLight: '#F0FDF4',
+  warningLight: '#FFFBEB',
+  infoLight: '#EFF6FF',
+  
+  // Neomorphism colors
+  neomorphism: {
+    background: '#F0F2F5',
+    shadow: '#C8CCD4',
+    highlight: '#FFFFFF',
   },
   
-  // Glassmorphism effect
+  // Glass morphism colors
   glass: {
     background: 'rgba(255, 255, 255, 0.25)',
     border: 'rgba(255, 255, 255, 0.18)',
-    backdrop: 'blur(10px)',
   },
-  
-  // Neumorphism colors
-  neomorphism: {
-    highlight: '#ffffff',
-    shadow: '#d1d9e0',
-    background: '#e0e5ec',
-  }
 };
 
+// Modern Dark Theme
 export const darkTheme = {
-  // Dark base colors with gradients for 3D effect
-  background: 'linear-gradient(135deg, #1a202c 0%, #2d3748 100%)',
-  backgroundSolid: '#1a202c',
-  surface: '#2d3748',
-  surfaceElevated: '#4a5568',
+  // Base colors
+  background: '#0F172A',
+  backgroundAlt: '#1E293B',
+  surface: '#1E293B',
+  surfaceAlt: '#334155',
   
-  // Enhanced dark color palette
-  primary: '#9f7aea',
-  primaryLight: '#b794f6',
-  primaryDark: '#805ad5',
-  primaryGradient: 'linear-gradient(135deg, #9f7aea 0%, #667eea 100%)',
+  // Brand colors
+  primary: '#4CC9F0',
+  primaryLight: '#4895EF',
+  primaryDark: '#3A0CA3',
   
-  secondary: '#ed64a6',
-  secondaryLight: '#f687b3',
-  secondaryDark: '#d53f8c',
-  secondaryGradient: 'linear-gradient(135deg, #ed64a6 0%, #f093fb 100%)',
+  secondary: '#F72585',
+  secondaryLight: '#F72585',
+  secondaryDark: '#B5179E',
   
-  accent: '#f6ad55',
-  accentGradient: 'linear-gradient(135deg, #f6ad55 0%, #ed8936 100%)',
+  accent: '#4361EE',
+  accentDark: '#3A0CA3',
   
-  // Dark text colors
-  text: '#f7fafc',
-  textSecondary: '#e2e8f0',
-  textTertiary: '#cbd5e0',
-  textLight: '#ffffff',
+  // Text colors
+  text: '#F8FAFC',
+  textSecondary: '#CBD5E1',
+  textTertiary: '#94A3B8',
+  textLight: '#FFFFFF',
   
-  // Dark UI elements
-  border: '#4a5568',
-  borderLight: '#2d3748',
-  card: '#2d3748',
-  cardShadow: 'rgba(0, 0, 0, 0.3)',
+  // UI elements
+  border: '#334155',
+  divider: '#334155',
   
-  // Dark status colors
-  success: '#68d391',
-  successGradient: 'linear-gradient(135deg, #68d391 0%, #48bb78 100%)',
-  warning: '#f6ad55',
-  warningGradient: 'linear-gradient(135deg, #f6ad55 0%, #ed8936 100%)',
-  error: '#fc8181',
-  errorGradient: 'linear-gradient(135deg, #fc8181 0%, #f56565 100%)',
-  info: '#63b3ed',
-  infoGradient: 'linear-gradient(135deg, #63b3ed 0%, #4299e1 100%)',
+  // Status colors
+  success: '#10B981',
+  successDark: '#059669',
+  warning: '#F59E0B',
+  warningDark: '#D97706',
+  error: '#EF4444',
+  errorDark: '#DC2626',
+  info: '#3B82F6',
+  infoDark: '#2563EB',
   
-  // 3D Shadow system for dark theme
+  // Shadow system - darker shadows for dark mode
   shadow: {
-    small: {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
+    ...elevation,
+    sm: {
+      ...elevation.sm,
       shadowOpacity: 0.3,
-      shadowRadius: 3,
-      elevation: 2,
     },
-    medium: {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 4 },
+    md: {
+      ...elevation.md,
+      shadowOpacity: 0.35,
+    },
+    lg: {
+      ...elevation.lg,
       shadowOpacity: 0.4,
-      shadowRadius: 8,
-      elevation: 4,
-    },
-    large: {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 8 },
-      shadowOpacity: 0.5,
-      shadowRadius: 16,
-      elevation: 8,
     },
     xl: {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 12 },
-      shadowOpacity: 0.6,
-      shadowRadius: 24,
-      elevation: 12,
-    }
+      ...elevation.xl,
+      shadowOpacity: 0.45,
+    },
   },
   
-  // Dark glassmorphism effect
-  glass: {
-    background: 'rgba(45, 55, 72, 0.25)',
-    border: 'rgba(255, 255, 255, 0.1)',
-    backdrop: 'blur(10px)',
-  },
+  // Additional UI colors
+  backgroundElevated: '#1E293B',
+  errorLight: '#371F1F',
+  successLight: '#1F2F1F',
+  warningLight: '#2F281F',
+  infoLight: '#1F252F',
   
-  // Dark neumorphism colors
+  // Neomorphism colors
   neomorphism: {
-    highlight: '#4a5568',
-    shadow: '#171923',
-    background: '#2d3748',
-  }
+    background: '#1E293B',
+    shadow: '#0F172A',
+    highlight: '#334155',
+  },
+  
+  // Glass morphism colors
+  glass: {
+    background: 'rgba(30, 41, 59, 0.25)',
+    border: 'rgba(203, 213, 225, 0.18)',
+  },
 };
 
 export const ThemeProvider = ({ children }) => {
@@ -201,38 +168,43 @@ export const ThemeProvider = ({ children }) => {
 
   useEffect(() => {
     setCurrentTheme(isDarkMode ? darkTheme : lightTheme);
+    saveThemePreference();
   }, [isDarkMode]);
+
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode);
+  };
 
   const loadThemePreference = async () => {
     try {
-      const storedTheme = await AsyncStorage.getItem('theme');
-      if (storedTheme !== null) {
-        setIsDarkMode(storedTheme === 'dark');
+      const savedTheme = await AsyncStorage.getItem('themePreference');
+      if (savedTheme !== null) {
+        setIsDarkMode(savedTheme === 'dark');
       }
     } catch (error) {
-      console.log('Error loading theme preference:', error);
+      console.error('Failed to load theme preference:', error);
     }
   };
 
-  const toggleTheme = async () => {
-    const newTheme = !isDarkMode;
-    setIsDarkMode(newTheme);
+  const saveThemePreference = async () => {
     try {
-      await AsyncStorage.setItem('theme', newTheme ? 'dark' : 'light');
+      await AsyncStorage.setItem('themePreference', isDarkMode ? 'dark' : 'light');
     } catch (error) {
-      console.log('Error saving theme preference:', error);
+      console.error('Failed to save theme preference:', error);
     }
-  };
-
-  const value = {
-    isDarkMode,
-    theme: currentTheme,
-    toggleTheme
   };
 
   return (
-    <ThemeContext.Provider value={value}>
+    <ThemeContext.Provider
+      value={{
+        theme: currentTheme,
+        isDarkMode,
+        toggleTheme,
+      }}
+    >
       {children}
     </ThemeContext.Provider>
   );
 };
+
+export default ThemeContext;

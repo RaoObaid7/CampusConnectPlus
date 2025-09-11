@@ -2,13 +2,13 @@ import { Dimensions } from 'react-native';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
-// Typography scale with 3D depth
+// Modern Typography System
 export const typography = {
-  // Font families
+  // Font families - using system fonts for better performance
   fontFamily: {
-    primary: 'Inter',
-    secondary: 'SF Pro Display',
-    mono: 'SF Mono',
+    primary: 'System',  // Will use San Francisco on iOS, Roboto on Android
+    secondary: 'System',
+    mono: 'monospace',
   },
 
   // Font sizes with responsive scaling
@@ -33,7 +33,6 @@ export const typography = {
     semibold: '600',
     bold: '700',
     extrabold: '800',
-    black: '900',
   },
 
   // Line heights for better readability
@@ -41,50 +40,47 @@ export const typography = {
     tight: 1.2,
     normal: 1.5,
     relaxed: 1.75,
-    loose: 2,
   },
 
-  // Letter spacing for modern look
+  // Letter spacing
   letterSpacing: {
     tight: -0.5,
     normal: 0,
     wide: 0.5,
-    wider: 1,
-    widest: 1.5,
   },
 };
 
-// Spacing system with consistent rhythm
+// Modern Spacing System - using 4pt grid
 export const spacing = {
+  xxs: 2,
   xs: 4,
   sm: 8,
   md: 16,
   lg: 24,
   xl: 32,
-  '2xl': 48,
-  '3xl': 64,
-  '4xl': 96,
+  '2xl': 40,
+  '3xl': 56,
+  '4xl': 72,
 };
 
-// Border radius for modern rounded corners
+// Modern Border Radius
 export const borderRadius = {
   none: 0,
+  xs: 2,
   sm: 4,
   md: 8,
   lg: 12,
   xl: 16,
   '2xl': 24,
-  '3xl': 32,
-  full: 9999,
+  pill: 9999,
 };
 
 // Animation durations and easings
 export const animation = {
   duration: {
     fast: 150,
-    normal: 300,
-    slow: 500,
-    slower: 750,
+    normal: 250,
+    slow: 400,
   },
   easing: {
     linear: 'linear',
@@ -92,322 +88,251 @@ export const animation = {
     easeIn: 'ease-in',
     easeOut: 'ease-out',
     easeInOut: 'ease-in-out',
-    spring: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
   },
 };
 
-// 3D transform effects
-export const transforms3D = {
-  // Perspective for 3D effects
-  perspective: {
-    shallow: 500,
-    normal: 1000,
-    deep: 2000,
+// Elevation and shadow system
+export const elevation = {
+  none: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0,
+    shadowRadius: 0,
+    elevation: 0,
   },
-
-  // Scale transforms for hover effects
-  scale: {
-    down: 0.95,
-    normal: 1,
-    up: 1.05,
-    large: 1.1,
+  xs: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
-
-  // Rotation transforms
-  rotate: {
-    slight: '2deg',
-    normal: '5deg',
-    noticeable: '15deg',
-    quarter: '90deg',
+  sm: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
   },
-};
-
-// Gradient generators
-export const gradients = {
-  // Primary gradients
-  primary: (theme) => ({
-    colors: [theme.primaryLight, theme.primary, theme.primaryDark],
-    start: { x: 0, y: 0 },
-    end: { x: 1, y: 1 },
-  }),
-
-  // Secondary gradients
-  secondary: (theme) => ({
-    colors: [theme.secondaryLight, theme.secondary, theme.secondaryDark],
-    start: { x: 0, y: 0 },
-    end: { x: 1, y: 1 },
-  }),
-
-  // Status gradients
-  success: (theme) => ({
-    colors: [theme.success, '#38a169'],
-    start: { x: 0, y: 0 },
-    end: { x: 1, y: 1 },
-  }),
-
-  error: (theme) => ({
-    colors: [theme.error, '#e53e3e'],
-    start: { x: 0, y: 0 },
-    end: { x: 1, y: 1 },
-  }),
-
-  // Special effects
-  rainbow: {
-    colors: ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe'],
-    start: { x: 0, y: 0 },
-    end: { x: 1, y: 1 },
+  md: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.12,
+    shadowRadius: 5,
+    elevation: 4,
   },
-
-  sunset: {
-    colors: ['#ffecd2', '#fcb69f', '#ff9a9e', '#fecfef'],
-    start: { x: 0, y: 0 },
-    end: { x: 1, y: 1 },
+  lg: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.14,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  xl: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.16,
+    shadowRadius: 12,
+    elevation: 9,
   },
 };
 
-// Neumorphism style generator
-export const createNeumorphismStyle = (theme, size = 'medium', pressed = false) => {
-  const sizes = {
-    small: { blur: 4, distance: 2 },
-    medium: { blur: 8, distance: 4 },
-    large: { blur: 16, distance: 8 },
-  };
-
-  const { blur, distance } = sizes[size] || sizes.medium;
-  const inset = pressed ? 'inset' : '';
-
-  return {
-    backgroundColor: theme.neomorphism.background,
-    shadowColor: theme.neomorphism.shadow,
-    shadowOffset: {
-      width: pressed ? -distance : distance,
-      height: pressed ? -distance : distance,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: blur,
-    elevation: pressed ? 0 : distance * 2,
-  };
-};
-
-// Glassmorphism style generator
-export const createGlassmorphismStyle = (theme, opacity = 0.25) => ({
-  backgroundColor: `rgba(255, 255, 255, ${opacity})`,
-  borderWidth: 1,
-  borderColor: theme.glass.border,
-  backdropFilter: 'blur(10px)',
-  // Note: backdrop-filter is not fully supported in React Native
-  // This would need a library like react-native-blur
-});
-
-// Card style generator with 3D effects
-export const createCardStyle = (theme, variant = 'elevated', size = 'medium') => {
-  const variants = {
-    flat: {
-      ...theme.shadow.small,
-      borderWidth: 1,
-      borderColor: theme.border,
-    },
-    elevated: theme.shadow.medium,
-    floating: theme.shadow.large,
-    dramatic: theme.shadow.xl,
-  };
-
-  const sizes = {
-    small: {
-      borderRadius: borderRadius.md,
-      padding: spacing.sm,
-    },
-    medium: {
-      borderRadius: borderRadius.lg,
-      padding: spacing.md,
-    },
-    large: {
-      borderRadius: borderRadius.xl,
-      padding: spacing.lg,
-    },
-  };
-
-  return {
-    backgroundColor: theme.card,
-    ...variants[variant],
-    ...sizes[size],
-  };
-};
-
-// Button style generator with 3D effects
-export const createButtonStyle = (theme, variant = 'primary', size = 'medium', state = 'normal') => {
-  const variants = {
-    primary: {
-      backgroundColor: theme.primary,
-      color: theme.textLight,
-      ...theme.shadow.medium,
-    },
-    secondary: {
-      backgroundColor: theme.secondary,
-      color: theme.textLight,
-      ...theme.shadow.medium,
-    },
-    outline: {
-      backgroundColor: 'transparent',
-      borderWidth: 2,
-      borderColor: theme.primary,
-      color: theme.primary,
-      ...theme.shadow.small,
-    },
-    ghost: {
-      backgroundColor: 'transparent',
-      color: theme.primary,
-    },
-    gradient: {
-      color: theme.textLight,
-      ...theme.shadow.medium,
-    },
-  };
-
-  const sizes = {
-    small: {
-      paddingHorizontal: spacing.md,
-      paddingVertical: spacing.xs,
-      borderRadius: borderRadius.md,
-      fontSize: typography.fontSize.sm,
-    },
-    medium: {
-      paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.sm,
-      borderRadius: borderRadius.lg,
-      fontSize: typography.fontSize.md,
-    },
-    large: {
-      paddingHorizontal: spacing.xl,
-      paddingVertical: spacing.md,
-      borderRadius: borderRadius.xl,
-      fontSize: typography.fontSize.lg,
-    },
-  };
-
-  const states = {
-    normal: { transform: [{ scale: 1 }] },
-    pressed: { 
-      transform: [{ scale: transforms3D.scale.down }],
-      opacity: 0.8,
-    },
-    hover: { 
-      transform: [{ scale: transforms3D.scale.up }],
-    },
-    disabled: {
-      opacity: 0.5,
-      transform: [{ scale: 1 }],
-    },
-  };
-
-  return {
-    ...variants[variant],
-    ...sizes[size],
-    ...states[state],
-    alignItems: 'center',
-    justifyContent: 'center',
-  };
-};
-
-// Input style generator with 3D effects
-export const createInputStyle = (theme, variant = 'default', state = 'normal') => {
-  const variants = {
-    default: {
-      backgroundColor: theme.surface,
-      borderWidth: 1,
-      borderColor: theme.border,
-      ...theme.shadow.small,
-    },
-    filled: {
-      backgroundColor: theme.surface,
-      borderWidth: 0,
-      ...theme.shadow.small,
-    },
-    outlined: {
-      backgroundColor: 'transparent',
-      borderWidth: 2,
-      borderColor: theme.border,
-    },
-    neumorphic: createNeumorphismStyle(theme, 'medium', state === 'focused'),
-  };
-
-  const states = {
-    normal: {},
-    focused: {
-      borderColor: theme.primary,
-      ...theme.shadow.medium,
-    },
-    error: {
-      borderColor: theme.error,
-      ...theme.shadow.small,
-    },
-    disabled: {
-      opacity: 0.5,
-      backgroundColor: theme.borderLight,
-    },
-  };
-
-  return {
-    ...variants[variant],
-    ...states[state],
-    borderRadius: borderRadius.lg,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    fontSize: typography.fontSize.md,
-    color: theme.text,
-  };
-};
-
-// Responsive design helpers
+// Helper functions for responsive design
 export const responsive = {
   isSmallScreen: screenWidth < 375,
   isMediumScreen: screenWidth >= 375 && screenWidth < 768,
   isLargeScreen: screenWidth >= 768,
-  screenWidth,
-  screenHeight,
+  
+  // Responsive font size calculation
+  calcFontSize: (size) => {
+    if (screenWidth < 375) return size * 0.9;
+    if (screenWidth >= 768) return size * 1.1;
+    return size;
+  },
+  
+  // Responsive spacing calculation
+  calcSpacing: (space) => {
+    if (screenWidth < 375) return space * 0.9;
+    if (screenWidth >= 768) return space * 1.2;
+    return space;
+  },
 };
 
-// Helper functions for dynamic styling
-export const helpers = {
-  // Get responsive font size
-  responsiveFontSize: (size) => {
-    const scale = responsive.isSmallScreen ? 0.9 : responsive.isLargeScreen ? 1.1 : 1;
-    return typography.fontSize[size] * scale;
-  },
+// Button style generator
+export const createButtonStyle = (theme, variant = 'filled', size = 'md', state = 'normal') => {
+  // Base styles
+  const baseStyle = {
+    paddingHorizontal: size === 'sm' ? spacing.md : size === 'lg' ? spacing.xl : spacing.lg,
+    paddingVertical: size === 'sm' ? spacing.xs : size === 'lg' ? spacing.md : spacing.sm,
+    borderRadius: size === 'sm' ? borderRadius.sm : size === 'lg' ? borderRadius.lg : borderRadius.md,
+    fontSize: size === 'sm' ? typography.fontSize.sm : size === 'lg' ? typography.fontSize.lg : typography.fontSize.md,
+  };
 
-  // Get responsive spacing
-  responsiveSpacing: (size) => {
-    const scale = responsive.isSmallScreen ? 0.8 : responsive.isLargeScreen ? 1.2 : 1;
-    return spacing[size] * scale;
-  },
+  // Variant styles
+  const variantStyles = {
+    filled: {
+      backgroundColor: theme.primary,
+      color: theme.textLight,
+      borderWidth: 0,
+    },
+    outline: {
+      backgroundColor: 'transparent',
+      color: theme.primary,
+      borderWidth: 1,
+      borderColor: theme.primary,
+    },
+    ghost: {
+      backgroundColor: 'transparent',
+      color: theme.primary,
+      borderWidth: 0,
+    },
+    subtle: {
+      backgroundColor: theme.primary + '15', // 15% opacity
+      color: theme.primary,
+      borderWidth: 0,
+    },
+  };
 
-  // Add opacity to hex color
-  addOpacity: (hex, opacity) => {
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-    return `rgba(${r}, ${g}, ${b}, ${opacity})`;
-  },
+  // State styles
+  const stateStyles = {
+    normal: {},
+    pressed: {
+      opacity: 0.8,
+    },
+    disabled: {
+      opacity: 0.5,
+    },
+  };
 
-  // Create hover effect style
-  createHoverEffect: (baseStyle, hoverTransform = transforms3D.scale.up) => ({
+  return {
     ...baseStyle,
-    transform: [{ scale: hoverTransform }],
-  }),
+    ...variantStyles[variant],
+    ...stateStyles[state],
+  };
 };
 
-export default {
-  typography,
-  spacing,
-  borderRadius,
-  animation,
-  transforms3D,
-  gradients,
-  createNeumorphismStyle,
-  createGlassmorphismStyle,
-  createCardStyle,
-  createButtonStyle,
-  createInputStyle,
-  responsive,
-  helpers,
+// Card style generator
+export const createCardStyle = (theme, variant = 'elevated', size = 'md') => {
+  // Base styles
+  const baseStyle = {
+    padding: size === 'sm' ? spacing.md : size === 'lg' ? spacing.xl : spacing.lg,
+    borderRadius: size === 'sm' ? borderRadius.md : size === 'lg' ? borderRadius.xl : borderRadius.lg,
+    backgroundColor: theme.surface,
+  };
+
+  // Variant styles
+  const variantStyles = {
+    elevated: {
+      ...elevation.md,
+    },
+    outlined: {
+      borderWidth: 1,
+      borderColor: theme.border,
+    },
+    flat: {},
+  };
+
+  return {
+    ...baseStyle,
+    ...variantStyles[variant],
+  };
+};
+
+// Input style generator
+export const createInputStyle = (theme, variant = 'outline', size = 'md', state = 'normal') => {
+  // Base styles
+  const baseStyle = {
+    paddingHorizontal: size === 'sm' ? spacing.md : size === 'lg' ? spacing.lg : spacing.md,
+    paddingVertical: size === 'sm' ? spacing.xs : size === 'lg' ? spacing.md : spacing.sm,
+    borderRadius: size === 'sm' ? borderRadius.sm : size === 'lg' ? borderRadius.lg : borderRadius.md,
+    fontSize: size === 'sm' ? typography.fontSize.sm : size === 'lg' ? typography.fontSize.lg : typography.fontSize.md,
+  };
+
+  // Variant styles
+  const variantStyles = {
+    outline: {
+      backgroundColor: theme.surface,
+      borderWidth: 1,
+      borderColor: theme.border,
+    },
+    filled: {
+      backgroundColor: theme.backgroundAlt,
+      borderWidth: 0,
+    },
+    underline: {
+      backgroundColor: 'transparent',
+      borderWidth: 0,
+      borderBottomWidth: 1,
+      borderColor: theme.border,
+      borderRadius: 0,
+    },
+  };
+
+  // State styles
+  const stateStyles = {
+    normal: {},
+    focused: {
+      borderColor: theme.primary,
+    },
+    error: {
+      borderColor: theme.error,
+    },
+    disabled: {
+      opacity: 0.5,
+    },
+  };
+
+  return {
+    ...baseStyle,
+    ...variantStyles[variant],
+    ...stateStyles[state],
+  };
+};
+
+// 3D Transform and Animation configurations
+export const transforms3D = {
+  scale: {
+    up: 1.05,
+    down: 0.95,
+    normal: 1,
+  },
+  rotate: {
+    slight: 3,
+    moderate: 15,
+    full: 360,
+  },
+  translate: {
+    small: 5,
+    medium: 10,
+    large: 20,
+  },
+  perspective: {
+    close: 300,
+    normal: 500,
+    far: 800,
+  },
+};
+
+// Gradient configurations
+export const gradients = {
+  primary: (theme) => ({
+    colors: [theme.primary, theme.primaryDark],
+    start: { x: 0, y: 0 },
+    end: { x: 1, y: 1 },
+  }),
+  secondary: (theme) => ({
+    colors: [theme.secondary, theme.secondaryDark],
+    start: { x: 0, y: 0 },
+    end: { x: 1, y: 1 },
+  }),
+  success: (theme) => ({
+    colors: [theme.success, theme.successDark],
+    start: { x: 0, y: 0 },
+    end: { x: 1, y: 1 },
+  }),
+  error: (theme) => ({
+    colors: [theme.error, theme.errorDark],
+    start: { x: 0, y: 0 },
+    end: { x: 1, y: 1 },
+  }),
 };

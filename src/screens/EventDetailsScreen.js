@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, Alert, SafeAreaView } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { saveRegistration, isRegistered, updatePreferencesFromRegistration } from '../utils/storage';
 import EventComments from '../components/EventComments';
+import Background from '../components/Background';
+import Card from '../components/Card';
+import Button from '../components/Button';
+import { spacing, borderRadius, typography } from '../utils/designSystem';
 
 const EventDetailsScreen = ({ route, navigation }) => {
   const { event } = route.params;
@@ -47,7 +51,7 @@ const EventDetailsScreen = ({ route, navigation }) => {
   };
 
   const renderEventHeader = () => (
-    <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}>
+    <Card variant="elevated" style={styles.card}>
       <Text style={[styles.title, { color: theme.text }]}>{event.name}</Text>
       
       <View style={[styles.categoryBadge, { backgroundColor: theme.primary }]}>
@@ -57,68 +61,68 @@ const EventDetailsScreen = ({ route, navigation }) => {
       <Text style={[styles.description, { color: theme.text }]}>{event.description}</Text>
 
       <View style={styles.detailsContainer}>
-        <Text style={[styles.detailLabel, { color: theme.textSecondary }]}>📅 Date & Time:</Text>
-        <Text style={[styles.detailValue, { color: theme.text }]}>{formatDate(event.time)}</Text>
+        <Text style={[styles.detailLabel, { color: theme.text }]}>📅 Date & Time:</Text>
+        <Text style={[styles.detailValue, { color: theme.textSecondary }]}>{formatDate(event.time)}</Text>
 
-        <Text style={[styles.detailLabel, { color: theme.textSecondary }]}>📍 Venue:</Text>
-        <Text style={[styles.detailValue, { color: theme.text }]}>{event.venue}</Text>
+        <Text style={[styles.detailLabel, { color: theme.text }]}>📍 Venue:</Text>
+        <Text style={[styles.detailValue, { color: theme.textSecondary }]}>{event.venue}</Text>
 
-        <Text style={[styles.detailLabel, { color: theme.textSecondary }]}>👥 Attendance:</Text>
-        <Text style={[styles.detailValue, { color: theme.text }]}>
+        <Text style={[styles.detailLabel, { color: theme.text }]}>👥 Attendance:</Text>
+        <Text style={[styles.detailValue, { color: theme.textSecondary }]}>
           {event.registrationCount}/{event.capacity} registered
         </Text>
 
-        <Text style={[styles.detailLabel, { color: theme.textSecondary }]}>✅ Available Spots:</Text>
-        <Text style={[styles.detailValue, { color: theme.success }]}>
+        <Text style={[styles.detailLabel, { color: theme.text }]}>✅ Available Spots:</Text>
+        <Text style={[styles.detailValue, { color: theme.textSecondary }]}>
           {event.capacity - event.registrationCount} spots remaining
         </Text>
       </View>
 
       {!registered ? (
-        <TouchableOpacity 
-          style={[styles.registerButton, { backgroundColor: theme.primary }]}
+        <Button
+          title="Register for Event"
+          variant="gradient"
           onPress={handleRegistration}
-        >
-          <Text style={styles.registerButtonText}>Register for Event</Text>
-        </TouchableOpacity>
+          style={styles.registerButton}
+        />
       ) : (
         <View style={styles.registeredContainer}>
-          <Text style={[styles.registeredText, { color: theme.success }]}>
-            ✅ You are registered for this event!
-          </Text>
+          <Text style={[styles.registeredText, { color: theme.success }]}>You are registered!</Text>
           
           {qrCode && (
-            <View style={styles.qrContainer}>
-              <Text style={[styles.qrTitle, { color: theme.text }]}>Your Check-in QR Code:</Text>
-              <View style={[styles.qrCodeWrapper, { backgroundColor: '#fff' }]}>
-                <QRCode
-                  value={qrCode}
-                  size={150}
-                  color="#000"
-                  backgroundColor="#fff"
-                />
-              </View>
-              <Text style={[styles.qrInstructions, { color: theme.textSecondary }]}>
-                Show this QR code at the event for check-in
-              </Text>
-              
-              <TouchableOpacity 
-                style={[styles.feedbackButton, { backgroundColor: theme.secondary }]}
-                onPress={() => navigation.navigate('Feedback', { event })}
-              >
-                <Text style={styles.feedbackButtonText}>Leave Feedback</Text>
-              </TouchableOpacity>
-            </View>
-          )}
+             <View style={styles.qrContainer}>
+               <Text style={[styles.qrTitle, { color: theme.text }]}>Your Event QR Code</Text>
+               <Card variant="outline" style={styles.qrCodeWrapper}>
+                  <QRCode
+                    value={`${event.id}-${user.id || user.email}`}
+                    size={150}
+                    color="#000"
+                    backgroundColor="#fff"
+                  />
+                </Card>
+               <Text style={[styles.qrInstructions, { color: theme.textSecondary }]}>
+                 Present this QR code at the event entrance for check-in
+               </Text>
+               
+               <Button
+                 title="Leave Feedback"
+                 variant="secondary"
+                 onPress={() => navigation.navigate('Feedback', { event })}
+                 style={styles.feedbackButton}
+               />
+             </View>
+           )}
         </View>
       )}
-    </View>
+    </Card>
   );
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
-      <EventComments eventId={event.id} headerContent={renderEventHeader()} />
-    </SafeAreaView>
+    <Background variant="gradient">
+      <SafeAreaView style={styles.container}>
+        <EventComments eventId={event.id} headerContent={renderEventHeader()} />
+      </SafeAreaView>
+    </Background>
   );
 };
 
@@ -127,91 +131,76 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   card: {
-    margin: 16,
-    padding: 20,
-    borderRadius: 12,
-    borderWidth: 1,
+    margin: spacing.md,
+    padding: spacing.lg,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 12,
+    fontSize: typography.fontSize.xl,
+    fontWeight: typography.fontWeight.bold,
+    marginBottom: spacing.sm,
   },
   categoryBadge: {
     alignSelf: 'flex-start',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    marginBottom: 16,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: borderRadius.lg,
+    marginBottom: spacing.md,
   },
   categoryText: {
     color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.semibold,
   },
   description: {
-    fontSize: 16,
-    lineHeight: 24,
-    marginBottom: 20,
+    fontSize: typography.fontSize.md,
+    lineHeight: typography.fontSize.md * 1.5,
+    marginBottom: spacing.lg,
   },
   detailsContainer: {
-    marginBottom: 24,
+    marginBottom: spacing.lg,
   },
   detailLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginTop: 12,
-    marginBottom: 4,
+    fontSize: typography.fontSize.md,
+    fontWeight: typography.fontWeight.semibold,
+    marginTop: spacing.sm,
+    marginBottom: spacing.xs,
   },
   detailValue: {
-    fontSize: 16,
-    marginBottom: 8,
+    fontSize: typography.fontSize.md,
+    marginBottom: spacing.sm,
   },
   registerButton: {
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  registerButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
+    marginTop: spacing.md,
   },
   registeredContainer: {
     alignItems: 'center',
+    marginTop: spacing.md,
   },
   registeredText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 20,
+    fontSize: typography.fontSize.lg,
+    fontWeight: typography.fontWeight.bold,
+    marginBottom: spacing.lg,
   },
   qrContainer: {
     alignItems: 'center',
   },
   qrTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 12,
+    fontSize: typography.fontSize.md,
+    fontWeight: typography.fontWeight.semibold,
+    marginBottom: spacing.sm,
   },
   qrCodeWrapper: {
-    padding: 20,
-    borderRadius: 12,
-    marginBottom: 12,
+    padding: spacing.lg,
+    borderRadius: borderRadius.md,
+    marginBottom: spacing.sm,
   },
   qrInstructions: {
-    fontSize: 14,
+    fontSize: typography.fontSize.sm,
     textAlign: 'center',
-    marginBottom: 16,
+    marginBottom: spacing.md,
   },
   feedbackButton: {
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  feedbackButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    marginTop: spacing.sm,
   },
 });
 

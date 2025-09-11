@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, SafeAreaView } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
-import Background3D from '../components/Background3D';
+import Background from '../components/Background';
 import { SidebarLayout, useScreenSize } from '../components/ResponsiveLayout';
 import SearchFilterBar from '../components/SearchFilterBar';
 import EventList from '../components/EventList';
@@ -16,14 +16,14 @@ const HomeScreen = ({ navigation }) => {
 
   // AI Recommendations Sidebar Content
   const sidebarContent = (
-    <View style={[styles.sidebar, { overflowY: 'scroll' }]}>
+    <View style={styles.sidebar}>
       <AIRecommendations navigation={navigation} isSidebar={true} />
     </View>
   );
 
   // Main Events Content
   const mainContent = (
-    <View style={[styles.mainContent, { overflowY: 'scroll' }]}>
+    <View style={styles.mainContent}>
       <SearchFilterBar
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
@@ -44,7 +44,7 @@ const HomeScreen = ({ navigation }) => {
   );
 
   return (
-    <Background3D variant="vibrant">
+    <Background variant="gradient">
       <SafeAreaView style={styles.container}>
         <SidebarLayout
           sidebar={sidebarContent}
@@ -53,7 +53,7 @@ const HomeScreen = ({ navigation }) => {
           position="left"
         />
       </SafeAreaView>
-    </Background3D>
+    </Background>
   );
 };
 

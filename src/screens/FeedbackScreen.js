@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, SafeAreaView } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Alert, SafeAreaView } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { saveFeedback } from '../utils/storage';
+import Background from '../components/Background';
+import Card from '../components/Card';
+import Button from '../components/Button';
+import { spacing, borderRadius, typography } from '../utils/designSystem';
 
 const FeedbackScreen = ({ route, navigation }) => {
   const { event } = route.params;
@@ -39,25 +43,27 @@ const FeedbackScreen = ({ route, navigation }) => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
       stars.push(
-        <TouchableOpacity
+        <Button
           key={i}
           onPress={() => handleStarPress(i)}
+          variant="icon"
           style={styles.starButton}
         >
           <Text style={[styles.star, { color: i <= rating ? '#FFD700' : theme.border }]}>
             ★
           </Text>
-        </TouchableOpacity>
+        </Button>
       );
     }
     return stars;
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
-      <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}>
-        <Text style={[styles.title, { color: theme.text }]}>Event Feedback</Text>
-        <Text style={[styles.eventName, { color: theme.textSecondary }]}>{event.name}</Text>
+    <Background variant="gradient">
+      <SafeAreaView style={styles.container}>
+        <Card variant="elevated" style={styles.card}>
+          <Text style={[styles.title, { color: theme.text }]}>Event Feedback</Text>
+          <Text style={[styles.eventName, { color: theme.textSecondary }]}>{event.name}</Text>
 
         <View style={styles.ratingSection}>
           <Text style={[styles.sectionTitle, { color: theme.text }]}>How was the event?</Text>
@@ -95,88 +101,74 @@ const FeedbackScreen = ({ route, navigation }) => {
           />
         </View>
 
-        <TouchableOpacity
-          style={[
-            styles.submitButton, 
-            { backgroundColor: theme.primary },
-            submitting && { opacity: 0.6 }
-          ]}
+        <Button
+          title={submitting ? 'Submitting...' : 'Submit Feedback'}
+          variant="gradient"
+          style={styles.submitButton}
           onPress={handleSubmit}
           disabled={submitting}
-        >
-          <Text style={styles.submitButtonText}>
-            {submitting ? 'Submitting...' : 'Submit Feedback'}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+        />
+        </Card>
+      </SafeAreaView>
+    </Background>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    padding: spacing.md,
   },
   card: {
-    padding: 20,
-    borderRadius: 12,
-    borderWidth: 1,
+    padding: spacing.lg,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: typography.fontSize.xl,
+    fontWeight: typography.fontWeight.bold,
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: spacing.xs,
   },
   eventName: {
-    fontSize: 16,
+    fontSize: typography.fontSize.md,
     textAlign: 'center',
-    marginBottom: 32,
+    marginBottom: spacing.xl,
   },
   ratingSection: {
-    marginBottom: 32,
+    marginBottom: spacing.xl,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 16,
+    fontSize: typography.fontSize.lg,
+    fontWeight: typography.fontWeight.semibold,
+    marginBottom: spacing.md,
   },
   starsContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: 12,
+    marginBottom: spacing.sm,
   },
   starButton: {
-    padding: 4,
+    padding: spacing.xs,
   },
   star: {
     fontSize: 40,
   },
   ratingText: {
-    fontSize: 16,
+    fontSize: typography.fontSize.md,
     textAlign: 'center',
     fontStyle: 'italic',
   },
   commentSection: {
-    marginBottom: 32,
+    marginBottom: spacing.xl,
   },
   commentInput: {
     borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
+    borderRadius: borderRadius.md,
+    padding: spacing.sm,
+    fontSize: typography.fontSize.md,
     minHeight: 100,
   },
   submitButton: {
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  submitButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
+    marginTop: spacing.md,
   },
 });
 

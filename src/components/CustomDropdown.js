@@ -91,7 +91,7 @@ const CustomDropdown = ({
             style={[
               styles.modalContent,
               { 
-                backgroundColor: theme.card,
+                backgroundColor: theme.surface,
                 borderColor: theme.border
               }
             ]}
